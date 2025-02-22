@@ -2,6 +2,7 @@ extends Node2D
 
 
 var pos = Vector2()
+var world_pos = Vector2()
 var mouse_down = false
 var line : Line2D
 var curr_line = null
@@ -13,7 +14,8 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
-		pos = event.position + ($camera.cam.position - get_viewport_rect().size / 2) 
+		pos = event.position 
+		world_pos = get_mouse_to_world_pos(pos)
 		press = max(event.pressure, 0.3)
 	elif event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
@@ -40,7 +42,7 @@ func _process(delta: float) -> void:
 						curr_line.width_curve.add_point(Vector2(pdx, ppres))
 						
 					
-					curr_line.add_point(pos / $camera.cam.zoom)
+					curr_line.add_point(world_pos)
 					curr_line.width_curve.add_point(Vector2(curr_line.points.size() * dx, press))
 					curr_pres.append(press)
 			else:
@@ -54,25 +56,36 @@ func _process(delta: float) -> void:
 	
 @onready var background = $background
 @onready var canvas = $canvas
+@onready var cam = $camera
 
+
+func get_mouse_to_world_pos(mouse_pos : Vector2) -> Vector2:
+	var cam_pos = cam.cam.position
+	var screen_size = get_viewport_rect().size
+	var world_pos = cam_pos + (mouse_pos - screen_size / 2) / cam.zoom#mouse_pos / cam.zoom + (cam_pos - screen_size / cam.zoom / 2 )
+	
+	return world_pos
 
 func _on_background_draw() -> void:
-	var cam_pos = $camera.new_pos
+	background.draw_circle(get_mouse_to_world_pos(pos), 3, Color.WHITE)
+	
+	
+	var cam_pos = cam.cam.position
 	var sq_size = 25
 	var screen_size = get_viewport_rect().size
 	
-	var first_off_x = floor((cam_pos.x - screen_size.x / 2) / sq_size)
-	var first_off_y = floor((cam_pos.y - screen_size.y / 2) / sq_size)
+	var first_off_x = floor((cam_pos.x - screen_size.x / 2 / cam.zoom) / sq_size)
+	var first_off_y = floor((cam_pos.y - screen_size.y / 2 / cam.zoom) / sq_size)
 
-	for x in round(screen_size.x / sq_size)+ 1:
-		var b_pos = Vector2((first_off_x + x) * sq_size, cam_pos.y - screen_size.y / 2)
-		var e_pos = Vector2((first_off_x + x) * sq_size, cam_pos.y + screen_size.y / 2)
+	for x in round(screen_size.x / sq_size / cam.zoom)+ 1:
+		var b_pos = Vector2((first_off_x + x) * sq_size, cam_pos.y - screen_size.y / 2 / cam.zoom)
+		var e_pos = Vector2((first_off_x + x) * sq_size, cam_pos.y + screen_size.y / 2 / cam.zoom)
 		background.draw_line(b_pos, e_pos, Color.WHITE)
 	
 	
-	for y in round(screen_size.y / sq_size) + 1:
-		var b_pos = Vector2(cam_pos.x - screen_size.x / 2, (first_off_y + y) * sq_size)
-		var e_pos = Vector2(cam_pos.x + screen_size.x / 2, (first_off_y + y) * sq_size)
+	for y in round(screen_size.y / sq_size / cam.zoom) + 1:
+		var b_pos = Vector2(cam_pos.x - screen_size.x / cam.zoom / 2, (first_off_y + y) * sq_size)
+		var e_pos = Vector2(cam_pos.x + screen_size.x / cam.zoom / 2, (first_off_y + y) * sq_size)
 		background.draw_line(b_pos, e_pos, Color.WHITE)
 
 
@@ -80,8 +93,6 @@ var data_to_save = {
 		"lines": []
 	}
 func _on_save_btn_pressed() -> void:
-	
-	
 	for child in canvas.get_children():
 		if child is Line2D:
 			var press_points = []

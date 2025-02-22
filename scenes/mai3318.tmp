@@ -10,11 +10,10 @@
 script = ExtResource("1_brwaw")
 
 [node name="Line2D" type="Line2D" parent="."]
-width = 6.0
+width = 2.0
 joint_mode = 2
 begin_cap_mode = 2
 end_cap_mode = 2
-antialiased = true
 
 [node name="CanvasGroup" type="CanvasLayer" parent="."]
 script = ExtResource("2_t8a8w")
@@ -60,8 +59,8 @@ text = "Open"
 [node name="VSlider" type="VSlider" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
-min_value = 1.0
-max_value = 3.0
+min_value = 0.1
+max_value = 2.0
 step = 0.1
 value = 1.0
 

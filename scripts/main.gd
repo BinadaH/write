@@ -17,42 +17,43 @@ func _unhandled_input(event: InputEvent) -> void:
 		pos = event.position 
 		world_pos = get_mouse_to_world_pos(pos)
 		press = max(event.pressure, 0.3)
+		update_line()
 	elif event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			mouse_down = event.pressed
+
 			
 var curr_pres = []
 
 var dt = 0
 
-func _process(delta: float) -> void:
-	dt += delta
-	if dt > 0.01:
-		dt = 0
-		if mouse_down:
-			if curr_line:
-				if curr_line.points.size() == 0 || (curr_line.points[curr_line.points.size()- 1] - pos).length() > 1:
-					curr_line.width_curve = Curve.new()
-					var dx = 1 / float(curr_line.points.size()+2)
-					
-					for i in curr_line.points.size():
-						var pdx =i * dx
-						var ppres = curr_pres[i]
-						
-						curr_line.width_curve.add_point(Vector2(pdx, ppres))
-						
-					
-					curr_line.add_point(world_pos)
-					curr_line.width_curve.add_point(Vector2(curr_line.points.size() * dx, press))
-					curr_pres.append(press)
-			else:
-				curr_line = line.duplicate()
-				canvas.add_child(curr_line)
+func update_line():
+	if mouse_down:
+		if curr_line:
+			#if curr_line.points.size() == 0 || (curr_line.points[curr_line.points.size()- 1] - world_pos).length() > 0.5 / cam.zoom:
+			curr_line.width_curve = Curve.new()
+			var dx = 1 / float(curr_line.points.size()+2)
+			
+			for i in curr_line.points.size():
+				var pdx =i * dx
+				var ppres = curr_pres[i]
+				
+				curr_line.width_curve.add_point(Vector2(pdx, ppres))
+				
+			
+			curr_line.add_point(world_pos)
+			curr_line.width_curve.add_point(Vector2(curr_line.points.size() * dx, press))
+			curr_pres.append(press)
 		else:
-			curr_line = null
-			curr_pres = []
+			curr_line = line.duplicate()
+			canvas.add_child(curr_line)
+	else:
+		curr_line = null
+		curr_pres = []
 
+func _process(delta: float) -> void:
 	background.queue_redraw()
+	#print(get_viewport_rect().size / 2.0 / cam.zoom)
 	
 @onready var background = $background
 @onready var canvas = $canvas
@@ -67,8 +68,7 @@ func get_mouse_to_world_pos(mouse_pos : Vector2) -> Vector2:
 	return world_pos
 
 func _on_background_draw() -> void:
-	background.draw_circle(get_mouse_to_world_pos(pos), 3, Color.WHITE)
-	
+
 	
 	var cam_pos = cam.cam.position
 	var sq_size = 25
@@ -77,16 +77,21 @@ func _on_background_draw() -> void:
 	var first_off_x = floor((cam_pos.x - screen_size.x / 2 / cam.zoom) / sq_size)
 	var first_off_y = floor((cam_pos.y - screen_size.y / 2 / cam.zoom) / sq_size)
 
-	for x in round(screen_size.x / sq_size / cam.zoom)+ 1:
+	var n_x = round(screen_size.x / sq_size / cam.zoom)+ 1
+	for x in n_x:
 		var b_pos = Vector2((first_off_x + x) * sq_size, cam_pos.y - screen_size.y / 2 / cam.zoom)
 		var e_pos = Vector2((first_off_x + x) * sq_size, cam_pos.y + screen_size.y / 2 / cam.zoom)
 		background.draw_line(b_pos, e_pos, Color.WHITE)
 	
 	
-	for y in round(screen_size.y / sq_size / cam.zoom) + 1:
+	var n_y = round(screen_size.y / sq_size / cam.zoom) + 1
+	for y in n_y:
 		var b_pos = Vector2(cam_pos.x - screen_size.x / cam.zoom / 2, (first_off_y + y) * sq_size)
 		var e_pos = Vector2(cam_pos.x + screen_size.x / cam.zoom / 2, (first_off_y + y) * sq_size)
 		background.draw_line(b_pos, e_pos, Color.WHITE)
+
+	
+	#test_new back
 
 
 var data_to_save = {

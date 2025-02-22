@@ -15,7 +15,7 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		pos = event.position 
-		world_pos = get_mouse_to_world_pos(pos)
+		world_pos = get_screen_to_world_pos(pos)
 		press = max(event.pressure, 0.3)
 		update_line()
 	elif event is InputEventMouseButton:
@@ -60,13 +60,14 @@ func _process(delta: float) -> void:
 @onready var cam = $camera
 
 
-func get_mouse_to_world_pos(mouse_pos : Vector2) -> Vector2:
+func get_screen_to_world_pos(mouse_pos : Vector2) -> Vector2:
 	var cam_pos = cam.cam.position
 	var screen_size = get_viewport_rect().size
 	var world_pos = cam_pos + (mouse_pos - screen_size / 2) / cam.zoom#mouse_pos / cam.zoom + (cam_pos - screen_size / cam.zoom / 2 )
 	
 	return world_pos
 
+var draw_grid = false
 func _on_background_draw() -> void:
 
 	
@@ -78,20 +79,27 @@ func _on_background_draw() -> void:
 	var first_off_y = floor((cam_pos.y - screen_size.y / 2 / cam.zoom) / sq_size)
 
 	var n_x = round(screen_size.x / sq_size / cam.zoom)+ 1
-	for x in n_x:
-		var b_pos = Vector2((first_off_x + x) * sq_size, cam_pos.y - screen_size.y / 2 / cam.zoom)
-		var e_pos = Vector2((first_off_x + x) * sq_size, cam_pos.y + screen_size.y / 2 / cam.zoom)
-		background.draw_line(b_pos, e_pos, Color.WHITE)
-	
-	
 	var n_y = round(screen_size.y / sq_size / cam.zoom) + 1
-	for y in n_y:
-		var b_pos = Vector2(cam_pos.x - screen_size.x / cam.zoom / 2, (first_off_y + y) * sq_size)
-		var e_pos = Vector2(cam_pos.x + screen_size.x / cam.zoom / 2, (first_off_y + y) * sq_size)
-		background.draw_line(b_pos, e_pos, Color.WHITE)
-
 	
-	#test_new back
+	if draw_grid:
+		for x in n_x:
+			var b_pos = Vector2((first_off_x + x) * sq_size, cam_pos.y - screen_size.y / 2 / cam.zoom)
+			var e_pos = Vector2((first_off_x + x) * sq_size, cam_pos.y + screen_size.y / 2 / cam.zoom)
+			background.draw_line(b_pos, e_pos, Color.WHITE)
+		
+		
+		for y in n_y:
+			var b_pos = Vector2(cam_pos.x - screen_size.x / cam.zoom / 2, (first_off_y + y) * sq_size)
+			var e_pos = Vector2(cam_pos.x + screen_size.x / cam.zoom / 2, (first_off_y + y) * sq_size)
+			background.draw_line(b_pos, e_pos, Color.WHITE)
+	else:
+		#test_new back
+		for x in n_x:
+			for y in n_y:
+				var c_x = (first_off_x + x) * sq_size
+				var c_y = (first_off_y + y) * sq_size
+				background.draw_circle(Vector2(c_x, c_y), 2, Color.WHITE)
+	
 
 
 var data_to_save = {

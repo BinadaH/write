@@ -1,8 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://c11lkbob5ipaf"]
+[gd_scene load_steps=7 format=3 uid="uid://c11lkbob5ipaf"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_brwaw"]
 [ext_resource type="Script" path="res://scripts/camera.gd" id="2_ln3mi"]
 [ext_resource type="Script" path="res://scripts/ui_controller.gd" id="2_t8a8w"]
+[ext_resource type="Script" path="res://scripts/background.gd" id="4_scug2"]
+[ext_resource type="Script" path="res://scripts/file_manager.gd" id="4_u6w2c"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qtu3f"]
 
@@ -61,6 +63,45 @@ text = "Open"
 layout_mode = 2
 text = "New"
 
+[node name="GridContainer" type="GridContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
+layout_mode = 2
+columns = 3
+
+[node name="pen_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "p"
+
+[node name="hand_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "h"
+
+[node name="select_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "s"
+
+[node name="Button4" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
+layout_mode = 2
+
+[node name="Button5" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
+layout_mode = 2
+
+[node name="Button6" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Button7" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
+layout_mode = 2
+
+[node name="Button8" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
+layout_mode = 2
+
+[node name="Button9" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
+layout_mode = 2
+
 [node name="VSlider" type="VSlider" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -90,15 +131,18 @@ script = ExtResource("2_ln3mi")
 
 [node name="background" type="Node2D" parent="."]
 self_modulate = Color(1, 1, 1, 0.317647)
+script = ExtResource("4_scug2")
 
 [node name="canvas" type="Node2D" parent="."]
 
-[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/save_btn" to="." method="_on_save_btn_pressed"]
-[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/open_btn" to="." method="_on_open_btn_pressed"]
-[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/new_btn" to="." method="_on_new_btn_pressed"]
+[node name="file_manager" type="Node" parent="."]
+script = ExtResource("4_u6w2c")
+
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/save_btn" to="file_manager" method="_on_save_btn_pressed"]
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/open_btn" to="CanvasGroup" method="_on_open_btn_pressed"]
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/new_btn" to="CanvasGroup" method="_on_new_btn_pressed"]
 [connection signal="value_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/VSlider" to="camera" method="_on_v_slider_value_changed"]
 [connection signal="draw" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_draw"]
 [connection signal="mouse_entered" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_mouse_entered"]
 [connection signal="mouse_exited" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_mouse_exited"]
-[connection signal="file_selected" from="CanvasGroup/open_file" to="." method="_on_open_file_file_selected"]
-[connection signal="draw" from="background" to="." method="_on_background_draw"]
+[connection signal="file_selected" from="CanvasGroup/open_file" to="file_manager" method="_on_open_file_file_selected"]

@@ -25,8 +25,6 @@ func _on_new_btn_pressed():
 	main.cam.zoom = 1
 	main.clear_canvas()
 	
-
-
 @onready var open_file = $open_file
 func _on_open_btn_pressed() -> void:
 	open_file.file_mode = FileDialog.FILE_MODE_OPEN_FILE
@@ -34,4 +32,4 @@ func _on_open_btn_pressed() -> void:
 
 @onready var draw_space = $HBoxContainer/draw_space
 func _on_draw_space_draw() -> void:
-	draw_space.draw_circle(mouse_pos - draw_space.position, 2, Color.WHITE)
+	draw_space.draw_circle(mouse_pos - draw_space.position, 2, main.current_col)

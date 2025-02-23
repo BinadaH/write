@@ -13,8 +13,8 @@ var zoom = 1
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
-		m_rel = event.relative
-		new_pos = last_pos - m_rel / zoom
+		pass
+		#print(new_pos)
 			
 	elif event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_RIGHT:
@@ -32,9 +32,10 @@ func _ready() -> void:
 
 @onready var main = get_parent()
 func _process(delta: float) -> void:
+	m_rel = main.pos - last_pos
 	if Input.is_action_pressed("cam_move") || (main.current_tool == main.TOOLS.HAND && main.mouse_down):
-		last_pos = new_pos
-		cam.position = last_pos
+		cam.position -= m_rel / zoom
+	last_pos = main.pos
 	
 	cam.zoom = Vector2(zoom, zoom)
 	

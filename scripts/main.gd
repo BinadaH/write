@@ -8,6 +8,7 @@ var line : Line2D
 var curr_line = null
 var press = 0
 var current_col = Color.WHITE
+@onready var current_size = $Line2D.width
 
 var wactions = []
 const MAX_UNDO_COUNT = 20
@@ -25,7 +26,9 @@ var current_tool
 
 func _ready() -> void:
 	line = $Line2D
-	
+	$CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel/pen_tools/pen_size.value = current_size
+	current_tool = TOOLS.PEN
+	current_col = Color.BLACK
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
@@ -62,7 +65,7 @@ var curr_pres = []
 
 func _draw():
 	if selection_rect:
-		draw_rect(selection_rect, Color.ANTIQUE_WHITE, false, 2)
+		draw_rect(selection_rect, background.BACK_COL.darkened(0.2), 2)
 	
 	for c in selection_made:
 		var r = c._edit_get_rect()
@@ -100,16 +103,17 @@ func update_line():
 				
 				curr_line.width_curve.add_point(Vector2(pdx, ppres))
 				
-			
 			curr_line.add_point(world_pos)
 			curr_line.width_curve.add_point(Vector2(curr_line.points.size() * dx, press))
 			curr_pres.append(press)
 		else:
 			curr_line = line.duplicate()
+			curr_line.default_color = current_col
+			curr_line.width = current_size 
 			canvas.add_child(curr_line)
-			
 			var wac = WAaction.new()
 			wac.set_action_add_line(curr_line)
+			
 			
 			if wactions.size() > MAX_UNDO_COUNT:
 				wactions.resize(MAX_UNDO_COUNT - 1)
@@ -171,6 +175,14 @@ func _on_color_picker_button_color_changed(color):
 
 func _on_del_btn_pressed():
 	for c in selection_made:
-		c.queue_free()
+		canvas.remove_child(c)
+		var wac = WAaction.new()
+		wac.set_action_delete_obj(c, canvas)
+		wactions.push_front(wac)
+		
 	selection_made.clear()
 	queue_redraw()
+
+
+func _on_h_slider_value_changed(value):
+	current_size = value

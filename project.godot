@@ -13,6 +13,7 @@ config_version=5
 config/name="Write"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
+run/low_processor_mode=true
 config/icon="res://icon.svg"
 
 [display]
@@ -30,4 +31,5 @@ cam_move={
 
 [rendering]
 
+anti_aliasing/screen_space_roughness_limiter/enabled=false
 anti_aliasing/quality/msaa_2d=3

@@ -121,12 +121,6 @@ grow_vertical = 2
 layout_mode = 2
 text = "col"
 
-[node name="pen_size" type="HSlider" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel/pen_tools"]
-layout_mode = 2
-min_value = 0.5
-max_value = 10.0
-value = 0.5
-
 [node name="draw_space" type="Control" parent="CanvasGroup/HBoxContainer"]
 z_index = -1
 layout_mode = 2
@@ -147,6 +141,7 @@ script = ExtResource("2_ln3mi")
 [node name="camera" type="Camera2D" parent="camera"]
 
 [node name="background" type="Node2D" parent="."]
+self_modulate = Color(1, 1, 1, 0.317647)
 script = ExtResource("4_scug2")
 
 [node name="canvas" type="Node2D" parent="."]
@@ -163,7 +158,6 @@ script = ExtResource("4_u6w2c")
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/sec_tools/del_btn" to="." method="_on_del_btn_pressed"]
 [connection signal="value_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/VSlider" to="camera" method="_on_v_slider_value_changed"]
 [connection signal="color_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel/pen_tools/ColorPickerButton" to="." method="_on_color_picker_button_color_changed"]
-[connection signal="value_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel/pen_tools/pen_size" to="." method="_on_h_slider_value_changed"]
 [connection signal="draw" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_draw"]
 [connection signal="mouse_entered" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_mouse_entered"]
 [connection signal="mouse_exited" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_mouse_exited"]

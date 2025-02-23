@@ -90,23 +90,40 @@ func update_selection():
 		selection_rect = null
 	queue_redraw()
 
+var temp_curve : Curve2D
+var dt = 0
 func update_line():
 	if mouse_down:
+			#if curr_line.points.size() == 0 || (curr_line.points[curr_line.points.size()- 1] - world_pos).length() > 5 / cam.zoom:
 		if curr_line:
-			#if curr_line.points.size() == 0 || (curr_line.points[curr_line.points.size()- 1] - world_pos).length() > 0.5 / cam.zoom:
 			curr_line.width_curve = Curve.new()
 			var dx = 1 / float(curr_line.points.size()+2)
 			
-			for i in curr_line.points.size():
-				var pdx =i * dx
+			for i in curr_pres.size():#curr_line.points.size():
+				var pdx = (i * curr_line.points.size() / curr_pres.size()) * dx
 				var ppres = curr_pres[i]
 				
 				curr_line.width_curve.add_point(Vector2(pdx, ppres))
+			
+			
+			if dt > 0.025:
+				dt = 0
+				temp_curve.add_point(world_pos)
+				for i in range(temp_curve.point_count - 2):
+					var dir = temp_curve.get_point_position(i) - temp_curve.get_point_position(i+2)
+					temp_curve.set_point_in(i + 1, dir.normalized() * 6)
+					temp_curve.set_point_out(i + 1, -dir.normalized() * 6)
 				
+			if temp_curve.point_count > 2:
+				curr_line.points = temp_curve.get_baked_points()
 			curr_line.add_point(world_pos)
+			
 			curr_line.width_curve.add_point(Vector2(curr_line.points.size() * dx, press))
 			curr_pres.append(press)
 		else:
+
+			temp_curve = Curve2D.new()
+			
 			curr_line = line.duplicate()
 			curr_line.default_color = current_col
 			curr_line.width = current_size 
@@ -125,6 +142,7 @@ func update_line():
 
 func _process(delta: float) -> void:
 	background.queue_redraw()
+	dt += delta
 	#print(get_viewport_rect().size / 2.0 / cam.zoom)
 	
 @onready var background = $background

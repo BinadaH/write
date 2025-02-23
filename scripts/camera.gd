@@ -20,13 +20,14 @@ func _input(event: InputEvent) -> void:
 		if event.button_index == MOUSE_BUTTON_RIGHT:
 			move = event.pressed
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
-			zoom = min(3, zoom + 0.1)
+			zoom = min(4, zoom + 0.1)
 		if event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			zoom = max(1, zoom - 0.1)
 			
 			
 func _ready() -> void:
 	cam = $camera
+	zoom = 1
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 
@@ -40,5 +41,5 @@ func _process(delta: float) -> void:
 	cam.zoom = Vector2(zoom, zoom)
 	
 func _on_v_slider_value_changed(value: float) -> void:
-	zoom = max(1, min(3, value + 0.1))
+	zoom = max(1, min(4, value))
 	

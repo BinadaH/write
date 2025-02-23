@@ -11,7 +11,7 @@ var data
 func _notification(what):
 	if what == NOTIFICATION_PREDELETE:
 		if type == ACTION_TYPE.DELETE_OBJ:
-			if data:
+			if data && data[0].find_parent("canvas"):
 				data[0].queue_free()
 
 func set_action_add_line(line : Line2D):

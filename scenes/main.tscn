@@ -57,6 +57,10 @@ text = "Save"
 layout_mode = 2
 text = "Open"
 
+[node name="new_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
+layout_mode = 2
+text = "New"
+
 [node name="VSlider" type="VSlider" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -71,21 +75,13 @@ layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 1
 
-[node name="background" type="Panel" parent="CanvasGroup/HBoxContainer/draw_space"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 1
-
 [node name="open_file" type="FileDialog" parent="CanvasGroup"]
 title = "Open a File"
 initial_position = 2
 size = Vector2i(400, 500)
 ok_button_text = "Open"
 file_mode = 0
+filters = PackedStringArray("*.wdata")
 
 [node name="camera" type="Node2D" parent="."]
 script = ExtResource("2_ln3mi")
@@ -99,6 +95,7 @@ self_modulate = Color(1, 1, 1, 0.317647)
 
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/save_btn" to="." method="_on_save_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/open_btn" to="." method="_on_open_btn_pressed"]
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/new_btn" to="." method="_on_new_btn_pressed"]
 [connection signal="value_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/VSlider" to="camera" method="_on_v_slider_value_changed"]
 [connection signal="draw" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_draw"]
 [connection signal="mouse_entered" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_mouse_entered"]

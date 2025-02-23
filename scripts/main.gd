@@ -8,6 +8,9 @@ var line : Line2D
 var curr_line = null
 var press = 0
 
+var wactions = []
+const MAX_UNDO_COUNT = 20
+
 func _ready() -> void:
 	line = $Line2D
 	
@@ -21,6 +24,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			mouse_down = event.pressed
+	elif event is InputEventKey:
+		if event.pressed && event.ctrl_pressed && event.keycode == KEY_Z:
+			var wa = wactions.pop_front()
+			if wa:
+				wa.undo()
 
 			
 var curr_pres = []
@@ -47,6 +55,14 @@ func update_line():
 		else:
 			curr_line = line.duplicate()
 			canvas.add_child(curr_line)
+			
+			var wac = WAaction.new()
+			wac.set_action_add_line(curr_line)
+			
+			if wactions.size() > MAX_UNDO_COUNT:
+				wactions.resize(MAX_UNDO_COUNT - 1)
+			wactions.push_front(wac)
+			
 	else:
 		curr_line = null
 		curr_pres = []
@@ -67,7 +83,7 @@ func get_screen_to_world_pos(mouse_pos : Vector2) -> Vector2:
 	
 	return world_pos
 
-var draw_grid = false
+var draw_grid = true
 func _on_background_draw() -> void:
 
 	
@@ -101,6 +117,10 @@ func _on_background_draw() -> void:
 				background.draw_circle(Vector2(c_x, c_y), 2, Color.WHITE)
 	
 
+func clear_canvas():
+	for c in canvas.get_children():
+		c.queue_free()
+	
 
 var data_to_save = {
 		"lines": []
@@ -129,16 +149,15 @@ func _on_save_btn_pressed() -> void:
 func _on_open_btn_pressed() -> void:
 	open_file.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	open_file.visible = true
-	
+
+
 func _on_open_file_file_selected(path: String) -> void:
 	if open_file.file_mode == FileDialog.FILE_MODE_SAVE_FILE:
 		var f = FileAccess.open(path, FileAccess.WRITE)
 		f.store_string(data_to_save)
 		f.close()
 	else:
-		for c in canvas.get_children():
-			c.queue_free()
-			
+		clear_canvas()
 		open_file.visible = false
 		
 		var f = FileAccess.open(path, FileAccess.READ)
@@ -162,3 +181,10 @@ func _on_open_file_file_selected(path: String) -> void:
 			for p in l["press"]:
 				l_d.width_curve.add_point(Vector2(dx * d, p))
 				d += 1
+
+func _on_new_btn_pressed():
+	cam.cam.position = Vector2(0, 0)
+	cam.zoom = 1
+	
+	clear_canvas()
+	

@@ -63,9 +63,8 @@ text = "Open"
 layout_mode = 2
 text = "New"
 
-[node name="GridContainer" type="GridContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
+[node name="GridContainer" type="HBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
 layout_mode = 2
-columns = 3
 
 [node name="pen_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
 layout_mode = 2
@@ -81,34 +80,45 @@ text = "h"
 
 [node name="select_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
 text = "s"
 
-[node name="Button4" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
+[node name="sec_tools" type="HBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
 layout_mode = 2
 
-[node name="Button5" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
-layout_mode = 2
-
-[node name="Button6" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
+[node name="del_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/sec_tools"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "del"
 
-[node name="Button7" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
 layout_mode = 2
+size_flags_vertical = 3
 
-[node name="Button8" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
-layout_mode = 2
-
-[node name="Button9" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
-layout_mode = 2
-
-[node name="VSlider" type="VSlider" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
+[node name="VSlider" type="VSlider" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 min_value = 1.0
 max_value = 3.0
 step = 0.1
 value = 1.0
+
+[node name="Panel" type="Panel" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="pen_tools" type="VBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel/pen_tools"]
+layout_mode = 2
+text = "col"
 
 [node name="draw_space" type="Control" parent="CanvasGroup/HBoxContainer"]
 z_index = -1
@@ -141,7 +151,12 @@ script = ExtResource("4_u6w2c")
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/save_btn" to="file_manager" method="_on_save_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/open_btn" to="CanvasGroup" method="_on_open_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/new_btn" to="CanvasGroup" method="_on_new_btn_pressed"]
-[connection signal="value_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/VSlider" to="camera" method="_on_v_slider_value_changed"]
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/pen_btn" to="." method="_on_pen_btn_pressed"]
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/hand_btn" to="." method="_on_hand_btn_pressed"]
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/select_btn" to="." method="_on_select_btn_pressed"]
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/sec_tools/del_btn" to="." method="_on_del_btn_pressed"]
+[connection signal="value_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/VSlider" to="camera" method="_on_v_slider_value_changed"]
+[connection signal="color_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel/pen_tools/ColorPickerButton" to="." method="_on_color_picker_button_color_changed"]
 [connection signal="draw" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_draw"]
 [connection signal="mouse_entered" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_mouse_entered"]
 [connection signal="mouse_exited" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_mouse_exited"]

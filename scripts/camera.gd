@@ -30,8 +30,9 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 
+@onready var main = get_parent()
 func _process(delta: float) -> void:
-	if Input.is_action_pressed("cam_move"):
+	if Input.is_action_pressed("cam_move") || (main.current_tool == main.TOOLS.HAND && main.mouse_down):
 		last_pos = new_pos
 		cam.position = last_pos
 	

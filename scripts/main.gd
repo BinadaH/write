@@ -90,9 +90,17 @@ func update_selection():
 		selection_rect = null
 	queue_redraw()
 
-var temp_curve : Curve2D
+func calc_c(p0, p1, p2, p3, t):
+	return 0.5 * (2 * p1 + (-p0 + p2)*t + (2*p0 - 5*p1 + 4*p2 - p3)* t * t + (-p0 + 3*p1 - 3* p2 + p3)* t* t* t)
+
+var A = 0.5
+func calc_t(p0, p1):
+	return pow((p0 - p1).length(), A)
+
 var dt = 0
+var curr_points = []
 func update_line():
+	
 	if mouse_down:
 			#if curr_line.points.size() == 0 || (curr_line.points[curr_line.points.size()- 1] - world_pos).length() > 5 / cam.zoom:
 		if curr_line:
@@ -106,23 +114,33 @@ func update_line():
 				curr_line.width_curve.add_point(Vector2(pdx, ppres))
 			
 			
-			if dt > 0.025:
+			if dt > 0.01:
 				dt = 0
-				temp_curve.add_point(world_pos)
-				for i in range(temp_curve.point_count - 2):
-					var dir = temp_curve.get_point_position(i) - temp_curve.get_point_position(i+2)
-					temp_curve.set_point_in(i + 1, dir.normalized() * 6)
-					temp_curve.set_point_out(i + 1, -dir.normalized() * 6)
+				curr_points.append(world_pos)
 				
-			if temp_curve.point_count > 2:
-				curr_line.points = temp_curve.get_baked_points()
-			curr_line.add_point(world_pos)
+				var draw_points = []
+				for i in range(0, curr_points.size() - 4):
+					var t1 = float(calc_t(curr_points[i], curr_points[i + 1]))
+					var t2 = float(calc_t(curr_points[i + 1], curr_points[i + 2])) + t1
+					var t = t1
+					while t < t2:
+						var n_t = (t - t1)/(t2 - t1)
+						var new = calc_c(curr_points[i], curr_points[i+1], curr_points[i+2], curr_points[i+3], n_t)
+						draw_points.append(new)
+						#draw_line(last, new, Color.WHITE, 4)
+						t += 0.1
+				
+				var arr = PackedVector2Array(draw_points)
+				if Input.is_action_pressed("ui_left"):
+					curr_line.points = curr_points
+				else:
+					curr_line.points = arr
+				
 			
 			curr_line.width_curve.add_point(Vector2(curr_line.points.size() * dx, press))
 			curr_pres.append(press)
 		else:
 
-			temp_curve = Curve2D.new()
 			
 			curr_line = line.duplicate()
 			curr_line.default_color = current_col
@@ -137,10 +155,18 @@ func update_line():
 			wactions.push_front(wac)
 			
 	else:
-		curr_line = null
-		curr_pres = []
+		if curr_line:
+			var x =  curr_points.size() % 4
+			print(x)
+			while x > 0:
+				curr_line.add_point(curr_points[curr_points.size() - x])
+				x -= 1
+			curr_line = null
+			curr_pres = []
+			curr_points = []
 
 func _process(delta: float) -> void:
+	$CanvasGroup/Label.text = str(delta)
 	background.queue_redraw()
 	dt += delta
 	#print(get_viewport_rect().size / 2.0 / cam.zoom)

@@ -1,32 +1,70 @@
 extends Node2D
 
+func calc_c(p0, p1, p2, p3, t):
+	return 0.5 * (2 * p1 + (-p0 + p2)*t + (2*p0 - 5*p1 + 4*p2 - p3)* t * t + (-p0 + 3*p1 - 3* p2 + p3)* t* t* t)
 
-var last_pos = Vector2()
-var new_pos = Vector2()
-@onready var canvas = $CanvasLayer/SubViewportContainer/SubViewport/Node2D
+var A = 0.5
+func calc_t(p0, p1):
+	return pow((p0 - p1).length(), A)
 
-#var c = Curve2D.new()
-#func _input(event: InputEvent) -> void:
-	#if event is InputEventMouseMotion:
-		#new_pos = event.position
-		#c.add_point(new_pos)
-		#$Line2D.points = c.get_baked_points()
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _ready():
-	var curve :Curve2D = $Path2D.curve
-	for i in range(curve.point_count - 2):
-		var dir = curve.get_point_position(i) - curve.get_point_position(i+1)
-		curve.set_point_in(i + 1, dir.normalized() * 100)
-		curve.set_point_out(i + 1, -dir.normalized() * 100)
+var to_draw = false
+var pos = Vector2.ZERO
+func _input(event):
+	if event is InputEventMouseMotion:
+		pos = event.position
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			to_draw = event.pressed
 
-func _process(delta: float) -> void:
-	$Line2D.points = $Path2D.curve.tessellate()
-	for p in $Path2D.curve.point_count:
-		$Path2D.curve
-	#canvas.queue_redraw()
+var curr_points = []
+var curr_line : Line2D
+#func _draw():
+	#var points = get_children()
+	#var t0 = calc_t(points, 0)
+	#var t1 = calc_t(points, 1)
 	#
-#func _on_node_2d_draw() -> void:
-	#Curve2D.new()
-	#canvas.draw_line(last_pos, new_pos, Color.WHITE, 1)
-	#last_pos = new_pos
+	#var t = 0
+	#var last = points[1].position
+	#while t < 1:
+		#var new = calc_c(points[0].position, points[1].position, points[2].position, points[3].position, t)
+		#draw_line(last, new, Color.WHITE, 4)
+		#last = new
+		#t += 0.1
+var dt = 0
+func _process(delta):
+	
+	$Label.text = str(Performance.get_monitor(Performance.TIME_PROCESS))
+	dt += delta
+	if dt < 0.0025:
+		return
+	dt = 0
+	if to_draw:
+		if !curr_line:
+			curr_line = $line.duplicate()
+			add_child(curr_line)
+		
+		curr_points.append(pos)
+		
+		var draw_points = []
+		for i in range(0, curr_points.size() - 4):
+			var t1 = float(calc_t(curr_points[i], curr_points[i + 1]))
+			var t2 = float(calc_t(curr_points[i + 1], curr_points[i + 2])) + t1
+			var t = t1
+			while t < t2:
+				var n_t = (t - t1)/(t2 - t1)
+				var new = calc_c(curr_points[i], curr_points[i+1], curr_points[i+2], curr_points[i+3], n_t)
+				draw_points.append(new)
+				#draw_line(last, new, Color.WHITE, 4)
+				t += 0.1
+			
+			
+		var arr = PackedVector2Array(draw_points)
+		arr.insert(0, curr_points[0])
+		curr_line.points = arr
+		curr_line.add_point(pos)
+
+	else:
+		curr_points = []
+		curr_line = null
+	

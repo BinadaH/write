@@ -18,10 +18,20 @@ begin_cap_mode = 2
 end_cap_mode = 2
 sharp_limit = 0.025
 round_precision = 32
-antialiased = true
 
 [node name="CanvasGroup" type="CanvasLayer" parent="."]
 script = ExtResource("2_t8a8w")
+
+[node name="Label" type="Label" parent="CanvasGroup"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -1.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
 
 [node name="HBoxContainer" type="HBoxContainer" parent="CanvasGroup"]
 anchors_preset = 15

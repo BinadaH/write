@@ -13,6 +13,8 @@ var current_col = Color.WHITE
 var wactions = []
 const MAX_UNDO_COUNT = 20
 
+var mouse_rel = Vector2.ZERO
+var mouse_vel = Vector2.ZERO
 
 enum TOOLS{
 	PEN,
@@ -32,6 +34,7 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
+		mouse_rel = event.relative
 		pos = event.position 
 		world_pos = get_screen_to_world_pos(pos)
 		press = max(event.pressure, 0.3)
@@ -99,8 +102,15 @@ func calc_t(p0, p1):
 
 var dt = 0
 var curr_points = []
+
+const velocity_factor = 1.0
+func adjust_spacing(velocity):
+	# Adjust spacing based on velocity (the faster, the larger the spacing)
+	return velocity_factor / (1 + velocity)
+
 func update_line():
-	
+	mouse_vel = mouse_rel / dt
+	var line_resolution = adjust_spacing(mouse_vel.length())
 	if mouse_down:
 			#if curr_line.points.size() == 0 || (curr_line.points[curr_line.points.size()- 1] - world_pos).length() > 5 / cam.zoom:
 		if curr_line:
@@ -128,7 +138,7 @@ func update_line():
 						var new = calc_c(curr_points[i], curr_points[i+1], curr_points[i+2], curr_points[i+3], n_t)
 						draw_points.append(new)
 						#draw_line(last, new, Color.WHITE, 4)
-						t += 0.1
+						t += line_resolution
 				
 				var arr = PackedVector2Array(draw_points)
 				if Input.is_action_pressed("ui_left"):
@@ -169,6 +179,8 @@ func _process(delta: float) -> void:
 	$CanvasGroup/Label.text = str(delta)
 	background.queue_redraw()
 	dt += delta
+	
+	
 	#print(get_viewport_rect().size / 2.0 / cam.zoom)
 	
 @onready var background = $background

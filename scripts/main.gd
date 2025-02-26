@@ -61,7 +61,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.pressed && event.keycode == KEY_ESCAPE:
 			if current_tool == TOOLS.SELECT:
 				clear_selection_status()
-			
+
 
 			
 var curr_pres = []
@@ -103,53 +103,67 @@ func calc_t(p0, p1):
 var dt = 0
 var curr_points = []
 
-const velocity_factor = 1.0
-func adjust_spacing(velocity):
-	# Adjust spacing based on velocity (the faster, the larger the spacing)
-	return velocity_factor / (1 + velocity)
+const velocity_factor = 10
 
+
+
+func exponential_moving_average(points, alpha=0.1):
+	var smoothed_points = []
+	smoothed_points.append(points[0])  # Initialize with the first point
+	
+	for i in range(1, len(points)):
+		# Get the previous smoothed point
+		var prev_smoothed = smoothed_points[-1]
+		
+		# Calculate the smoothed x and y values
+		var smoothed_x = alpha * points[i].x + (1 - alpha) * prev_smoothed.x
+		var smoothed_y = alpha * points[i].y + (1 - alpha) * prev_smoothed.y
+		
+		# Create a new Point object with the smoothed coordinates
+		smoothed_points.append(Vector2(smoothed_x, smoothed_y))
+	
+	return smoothed_points
+	
 func update_line():
-	mouse_vel = mouse_rel / dt
-	var line_resolution = adjust_spacing(mouse_vel.length())
 	if mouse_down:
 			#if curr_line.points.size() == 0 || (curr_line.points[curr_line.points.size()- 1] - world_pos).length() > 5 / cam.zoom:
 		if curr_line:
 			curr_line.width_curve = Curve.new()
-			var dx = 1 / float(curr_line.points.size()+2)
+			curr_points.append(world_pos)
+			curr_pres.append(press)
 			
-			for i in curr_pres.size():#curr_line.points.size():
-				var pdx = (i * curr_line.points.size() / curr_pres.size()) * dx
-				var ppres = curr_pres[i]
+			
+			var smoothed_pressures = []
+			var alpha = 0.1  # Smoothing factor for EMA
+			
+			for i in range(curr_pres.size()):
+				if i == 0:
+					smoothed_pressures.append(curr_pres[i])
+				else:
+					smoothed_pressures.append(smoothed_pressures[i - 1] * (1 - alpha) + curr_pres[i] * alpha)
+
+			var dx = 1 / float(curr_line.points.size())
+
+			for i in smoothed_pressures.size():
+				var pdx = (i * curr_line.points.size() / smoothed_pressures.size()) * dx
+				var ppres = smoothed_pressures[i]
 				
 				curr_line.width_curve.add_point(Vector2(pdx, ppres))
 			
-			
-			if dt > 0.01:
-				dt = 0
-				curr_points.append(world_pos)
-				
-				var draw_points = []
-				for i in range(0, curr_points.size() - 4):
-					var t1 = float(calc_t(curr_points[i], curr_points[i + 1]))
-					var t2 = float(calc_t(curr_points[i + 1], curr_points[i + 2])) + t1
-					var t = t1
-					while t < t2:
-						var n_t = (t - t1)/(t2 - t1)
-						var new = calc_c(curr_points[i], curr_points[i+1], curr_points[i+2], curr_points[i+3], n_t)
-						draw_points.append(new)
-						#draw_line(last, new, Color.WHITE, 4)
-						t += line_resolution
-				
-				var arr = PackedVector2Array(draw_points)
-				if Input.is_action_pressed("ui_left"):
-					curr_line.points = curr_points
-				else:
-					curr_line.points = arr
 				
 			
-			curr_line.width_curve.add_point(Vector2(curr_line.points.size() * dx, press))
-			curr_pres.append(press)
+			var draw_points = exponential_moving_average(curr_points, 0.25)
+			
+			var arr = PackedVector2Array(draw_points)
+			if Input.is_action_pressed("ui_left"):
+				curr_line.points = curr_points
+			else:
+				curr_line.points = arr
+			
+			#curr_line.width_curve.add_point(Vector2(curr_line.points.size() * dx, press))
+			
 		else:
+			
 
 			
 			curr_line = line.duplicate()
@@ -174,6 +188,7 @@ func update_line():
 			curr_line = null
 			curr_pres = []
 			curr_points = []
+
 
 func _process(delta: float) -> void:
 	$CanvasGroup/Label.text = str(delta)

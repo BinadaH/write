@@ -62,13 +62,13 @@ func _on_open_file_file_selected(path: String) -> void:
 				var a = p.split(",")
 				var x = a[0].trim_prefix("(")
 				var y = a[1].trim_suffix(")")
-				var c = Vector2(int(x), int(y))
+				var c = Vector2(float(x), float(y))
 				l_d.add_point(c)
 				
-			var dx = 1/float(l["points"].size() + 2)
+			var dx = 1/float(l["points"].size())
 			var d = 0
 			for p in l["press"]:
-				l_d.width_curve.add_point(Vector2(dx * (d * l["points"].size() / l["press"].size()), p))
+				l_d.width_curve.add_point(Vector2(dx * d * l["points"].size() / l["press"].size(), p))
 				d += 1
 			
 			l_d.default_color = Color(l["col"][0], l["col"][1], l["col"][2], l["col"][3])

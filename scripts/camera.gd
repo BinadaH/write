@@ -23,7 +23,7 @@ func _input(event: InputEvent) -> void:
 			zoom = min(4, zoom + 0.1)
 		if event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			zoom = max(1, zoom - 0.1)
-			
+		
 			
 func _ready() -> void:
 	cam = $camera

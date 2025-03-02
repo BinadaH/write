@@ -104,10 +104,7 @@ var dt = 0
 var curr_points = []
 
 const velocity_factor = 10
-
-
-
-func exponential_moving_average(points, alpha=0.1):
+func exponential_moving_average(points, alpha=0.9):
 	var smoothed_points = []
 	smoothed_points.append(points[0])  # Initialize with the first point
 	

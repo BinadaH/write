@@ -11,6 +11,7 @@ var current_col = Color.WHITE
 @onready var current_size = $Line2D.width
 
 var wactions = []
+var wactions_redo = []
 const MAX_UNDO_COUNT = 20
 
 var mouse_rel = Vector2.ZERO
@@ -56,11 +57,24 @@ func _unhandled_input(event: InputEvent) -> void:
 				clear_selection_status()
 				
 	elif event is InputEventKey:
-		if event.pressed && event.ctrl_pressed && event.keycode == KEY_Z:
+		if event.pressed && event.ctrl_pressed:
 			clear_selection_status()
-			var wa = wactions.pop_front()
-			if wa:
-				wa.undo()
+			if event.keycode == KEY_Y or (event.shift_pressed && event.keycode == KEY_Z):
+				#redo
+				var wa = wactions_redo.pop_front()
+				if wa:
+					wa.redo()
+					wactions.push_front(wa)
+			elif event.keycode == KEY_Z:
+				#undo
+				var wa = wactions.pop_front()
+				if wa:
+					wa.undo()
+					wactions_redo.push_front(wa)
+		if event.pressed && event.keycode == KEY_DELETE:
+			_on_del_btn_pressed()
+			
+				
 		elif event.pressed && event.keycode == KEY_ESCAPE:
 			if current_tool == TOOLS.SELECT:
 				clear_selection_status()
@@ -78,9 +92,9 @@ func _draw():
 		#draw_rect(r, Color.RED, false, 2)
 	if selection_made:
 		selection_made.draw(self)
-		for o in selection_made.objs:
-			var r = o._edit_get_rect()
-			draw_rect(r, Color.RED, false, 2)
+		#for o in selection_made.objs:
+			#var r = o._edit_get_rect()
+			#draw_rect(r, Color.RED, false, 2)
 
 var selection_rect
 var selection_made : ShapeBounds
@@ -201,12 +215,8 @@ func update_line():
 			curr_line.width = current_size 
 			canvas.add_child(curr_line)
 			var wac = WAaction.new()
-			wac.set_action_add_line(curr_line)
-			
-			
-			if wactions.size() > MAX_UNDO_COUNT:
-				wactions.resize(MAX_UNDO_COUNT - 1)
-			wactions.push_front(wac)
+			wac.set_action_add_line(curr_line, canvas)
+			add_waction(wac)
 			
 	else:
 		if curr_line:
@@ -219,6 +229,14 @@ func update_line():
 			curr_pres = []
 			curr_points = []
 
+
+func add_waction(waction : WAaction):
+	if wactions.size() > MAX_UNDO_COUNT:
+		wactions.resize(MAX_UNDO_COUNT - 1)
+	wactions.push_front(waction)
+	for w in wactions_redo:
+		w.clear_data()
+	wactions_redo.clear()
 
 func _process(delta: float) -> void:
 	$CanvasGroup/Label.text = str(delta)
@@ -275,14 +293,15 @@ func _on_color_picker_button_color_changed(color):
 	current_col = color
 
 func _on_del_btn_pressed():
-	#for c in selection_made:
-		#canvas.remove_child(c)
-		#var wac = WAaction.new()
-		#wac.set_action_delete_obj(c, canvas)
-		#wactions.push_front(wac)
-		
-	#selection_made.clear()
-	queue_redraw()
+	if selection_made:
+		for c in selection_made.objs:
+			canvas.remove_child(c)
+		var wac = WAaction.new()
+		wac.set_action_delete_obj(selection_made.objs, canvas)
+		add_waction(wac)
+			
+		selection_made = null
+		queue_redraw()
 
 
 func _on_h_slider_value_changed(value):

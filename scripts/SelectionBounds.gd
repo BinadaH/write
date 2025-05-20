@@ -51,6 +51,10 @@ func get_handle():
 
 func draw(canvas : Node2D):
 	#canvas.draw_primitive(points, [], [])
+	canvas.draw_line(points[0], points[1], Color.ALICE_BLUE, 3)
+	canvas.draw_line(points[1], points[2], Color.ALICE_BLUE, 3)
+	canvas.draw_line(points[2], points[3], Color.ALICE_BLUE, 3)
+	canvas.draw_line(points[3], points[0], Color.ALICE_BLUE, 3)
 	for p in points:
 		canvas.draw_circle(p, 5, Color.RED)
 		

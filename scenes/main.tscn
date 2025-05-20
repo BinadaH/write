@@ -1,10 +1,13 @@
-[gd_scene load_steps=7 format=3 uid="uid://c11lkbob5ipaf"]
+[gd_scene load_steps=10 format=3 uid="uid://c11lkbob5ipaf"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_brwaw"]
 [ext_resource type="Script" path="res://scripts/camera.gd" id="2_ln3mi"]
 [ext_resource type="Script" path="res://scripts/ui_controller.gd" id="2_t8a8w"]
+[ext_resource type="Texture2D" uid="uid://imhrt4tog53m" path="res://sprites/pen.png" id="3_75adb"]
+[ext_resource type="Texture2D" uid="uid://dvpt4kemn5kcb" path="res://sprites/pan.png" id="4_kpeg8"]
 [ext_resource type="Script" path="res://scripts/background.gd" id="4_scug2"]
 [ext_resource type="Script" path="res://scripts/file_manager.gd" id="4_u6w2c"]
+[ext_resource type="Texture2D" uid="uid://bdyotc2mywy44" path="res://sprites/select.png" id="5_k3b4j"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qtu3f"]
 
@@ -44,7 +47,7 @@ grow_vertical = 2
 z_index = 1
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.09
+size_flags_stretch_ratio = 0.1
 
 [node name="Panel" type="Panel" parent="CanvasGroup/HBoxContainer/tools"]
 layout_mode = 1
@@ -79,21 +82,28 @@ text = "New"
 layout_mode = 2
 
 [node name="pen_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-text = "p"
+icon = ExtResource("3_75adb")
+icon_alignment = 1
+expand_icon = true
 
 [node name="hand_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-text = "h"
+icon = ExtResource("4_kpeg8")
+icon_alignment = 1
+expand_icon = true
 
 [node name="select_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "s"
+icon = ExtResource("5_k3b4j")
+icon_alignment = 1
+expand_icon = true
 
 [node name="sec_tools" type="HBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
 visible = false

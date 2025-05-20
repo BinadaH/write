@@ -42,7 +42,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		if current_tool == TOOLS.PEN:
 			update_line()
 		elif current_tool == TOOLS.SELECT:
+
 			update_selection()
+		
 			
 	elif event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
@@ -55,6 +57,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				
 	elif event is InputEventKey:
 		if event.pressed && event.ctrl_pressed && event.keycode == KEY_Z:
+			clear_selection_status()
 			var wa = wactions.pop_front()
 			if wa:
 				wa.undo()
@@ -68,29 +71,59 @@ var curr_pres = []
 
 func _draw():
 	if selection_rect:
-		draw_rect(selection_rect, background.BACK_COL.darkened(0.2), 2)
-	
-	for c in selection_made:
-		var r = c._edit_get_rect()
-		draw_rect(r, Color.RED, false, 2)
-
-var selection_rect = null
-var selection_made = []
-func update_selection():
-	if mouse_down:
-		if selection_rect:
-			selection_rect.end = world_pos
-		else:
-			selection_rect = Rect2()
-			selection_rect.position = world_pos
-	else:
-		if selection_rect:
-			for c in canvas.get_children():
-				var r = c._edit_get_rect()
-				if selection_rect.abs().encloses(r):
-					selection_made.append(c)
+		draw_rect(selection_rect, background.BACK_COL.lightened(0.2), 2)
 		
-		selection_rect = null
+	#for c in selection_made:
+		#var r = c._edit_get_rect()
+		#draw_rect(r, Color.RED, false, 2)
+	if selection_made:
+		selection_made.draw(self)
+		for o in selection_made.objs:
+			var r = o._edit_get_rect()
+			draw_rect(r, Color.RED, false, 2)
+
+var selection_rect
+var selection_made : ShapeBounds
+var selection_waction : WAaction
+func update_selection():
+	if !selection_made:
+		if mouse_down:
+			if selection_rect:
+				selection_rect.end = world_pos
+			else:
+				selection_rect = Rect2()
+				selection_rect.position = world_pos
+		else:
+			if selection_rect:
+				var new_rect = null
+				var objs = []
+				var selection_waction = WAaction.new()
+				for c in canvas.get_children():
+					var r = c._edit_get_rect()
+					if selection_rect.abs().encloses(r):
+						new_rect = new_rect.merge(r) if new_rect else r
+						objs.append(c)
+						
+				if new_rect && new_rect.size:
+					selection_made = ShapeBounds.new(new_rect)
+					selection_made.set_objs(objs)
+					selection_waction.set_action_reset_scale(objs)
+					wactions.push_front(selection_waction)
+				
+			selection_rect = null
+	else:
+		if mouse_down:
+			if !selection_made.handle_selected:
+				if selection_made.is_cursor_inside(world_pos):
+					selection_made.move(mouse_rel / cam.zoom)
+				elif !selection_made.calc_handle(world_pos):
+					clear_selection_status()
+					
+			else:
+				selection_made.scale(mouse_rel / cam.zoom, Input.is_key_pressed(KEY_SHIFT))
+		else:
+			selection_made.handle_selected = false
+			
 	queue_redraw()
 
 func calc_c(p0, p1, p2, p3, t):
@@ -212,7 +245,7 @@ func clear_canvas():
 	
 	
 func clear_selection_status():
-	selection_made.clear()
+	selection_made = null
 	selection_rect = null
 
 
@@ -242,13 +275,13 @@ func _on_color_picker_button_color_changed(color):
 	current_col = color
 
 func _on_del_btn_pressed():
-	for c in selection_made:
-		canvas.remove_child(c)
-		var wac = WAaction.new()
-		wac.set_action_delete_obj(c, canvas)
-		wactions.push_front(wac)
+	#for c in selection_made:
+		#canvas.remove_child(c)
+		#var wac = WAaction.new()
+		#wac.set_action_delete_obj(c, canvas)
+		#wactions.push_front(wac)
 		
-	selection_made.clear()
+	#selection_made.clear()
 	queue_redraw()
 
 

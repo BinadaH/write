@@ -7,6 +7,7 @@ var data_to_save = {
 		"lines": []
 }
 func _on_save_btn_pressed() -> void:
+	main.clear_selection_status()
 	data_to_save = {
 		"lines": []
 	}
@@ -41,6 +42,7 @@ func _on_save_btn_pressed() -> void:
 
 
 func _on_open_file_file_selected(path: String) -> void:
+	main.clear_selection_status()
 	if main.open_file.file_mode == FileDialog.FILE_MODE_SAVE_FILE:
 		var f = FileAccess.open(path, FileAccess.WRITE)
 		f.store_string(data_to_save)

@@ -32,6 +32,7 @@ func _ready() -> void:
 	$CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel/pen_tools/pen_size.value = current_size
 	current_tool = TOOLS.PEN
 	current_col = Color.BLACK
+	
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
@@ -92,9 +93,11 @@ func _draw():
 		#draw_rect(r, Color.RED, false, 2)
 	if selection_made:
 		selection_made.draw(self)
-		#for o in selection_made.objs:
-			#var r = o._edit_get_rect()
-			#draw_rect(r, Color.RED, false, 2)
+		for o in selection_made.objs:
+			var r = o._edit_get_rect()
+			if o is Control:
+				r.position += o.position
+			draw_rect(r, Color.RED, false, 2)
 
 var selection_rect
 var selection_made : ShapeBounds
@@ -114,6 +117,8 @@ func update_selection():
 				var selection_waction = WAaction.new()
 				for c in canvas.get_children():
 					var r = c._edit_get_rect()
+					if c is Control:
+						r.position += c.position
 					if selection_rect.abs().encloses(r):
 						new_rect = new_rect.merge(r) if new_rect else r
 						objs.append(c)

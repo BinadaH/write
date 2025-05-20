@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3 uid="uid://ca131cm7mqw2"]
+
+[ext_resource type="Script" path="res://scripts/handle_3d.gd" id="1_a5rkv"]
+[ext_resource type="Script" path="res://scripts/3d_camera.gd" id="1_oku41"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_xdy7r"]
+
+[node name="base_3d" type="Node3D"]
+script = ExtResource("1_a5rkv")
+
+[node name="camera" type="Node3D" parent="."]
+script = ExtResource("1_oku41")
+
+[node name="Camera3D" type="Camera3D" parent="camera"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.47776)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.77969, 0.357974, 0.513749, -0.618142, 0.570957, 0.540285, -0.099921, -0.738825, 0.666448, 3.71572, 4.49838, 7.36798)
+
+[node name="scene" type="Node3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="scene"]
+mesh = SubResource("BoxMesh_xdy7r")
+skeleton = NodePath("../..")

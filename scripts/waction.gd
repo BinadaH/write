@@ -32,6 +32,8 @@ func set_action_reset_scale(objs):
 	for o in objs:
 		if o is Line2D:
 			self.data[o] = o.points
+		elif o is Control:
+			self.data[o] = [o.get_begin(), o.get_end()]
 
 func undo():
 	if type == ACTION_TYPE.ADDLINE:
@@ -46,6 +48,11 @@ func undo():
 				var tmp = o.points
 				o.points = self.data[o]
 				self.data[o] = tmp
+			elif o is Control:
+				var tmp = [o.get_begin(), o.get_end()]
+				o.set_begin(data[o][0])
+				o.set_end(data[o][1])
+				self.data[o] = tmp
 
 func redo():
 	if type == ACTION_TYPE.ADDLINE:
@@ -59,6 +66,11 @@ func redo():
 			if o is Line2D:
 				var tmp = o.points
 				o.points = self.data[o]
+				self.data[o] = tmp
+			elif o is Control:
+				var tmp = [o.get_begin(), o.get_end()]
+				o.set_begin(data[o][0])
+				o.set_end(data[o][1])
 				self.data[o] = tmp
 
 func clear_data():

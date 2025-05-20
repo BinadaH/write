@@ -79,6 +79,9 @@ func scale(rel : Vector2, proportional : bool):
 			if obj is Line2D:
 				for i in range(obj.points.size()):
 					obj.points[i] = k * (obj.points[i] - origin) + origin
+			elif obj is Control:
+				obj.set_begin(points[0])
+				obj.set_end(points[2])
 
 func move(rel : Vector2):
 	for i in points.size():
@@ -88,6 +91,9 @@ func move(rel : Vector2):
 		if obj is Line2D:
 			for i in range(obj.points.size()):
 				obj.points[i] += rel
+		elif obj is Control:
+			obj.position = points[0]
+
 
 func get_rect() -> Rect2:
 	return Rect2(points[0], points[2] - points[0])

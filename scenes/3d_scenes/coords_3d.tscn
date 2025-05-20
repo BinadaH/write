@@ -1,0 +1,30 @@
+[gd_scene load_steps=2 format=3 uid="uid://bjqnshvkckqdn"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_8r8fg"]
+size = Vector3(0.05, 0.05, 3)
+
+[node name="Coords3d" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.32053)
+mesh = SubResource("BoxMesh_8r8fg")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 1.29823, 0)
+mesh = SubResource("BoxMesh_8r8fg")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 1.3, 0, 0)
+mesh = SubResource("BoxMesh_8r8fg")
+
+[node name="x" type="Label3D" parent="."]
+transform = Transform3D(0.842114, 0, 0.5393, 0, 1, 0, -0.5393, 0, 0.842114, 2.87572, 0, 0)
+text = "x"
+
+[node name="y" type="Label3D" parent="."]
+transform = Transform3D(0.75876, 0, 0.65137, 0, 1, 0, -0.65137, 0, 0.75876, 0.125299, 2.80881, 0)
+text = "y"
+
+[node name="z" type="Label3D" parent="."]
+transform = Transform3D(0.751483, 0, 0.659752, 0, 1, 0, -0.659752, 0, 0.751483, 0, 0, 2.91232)
+text = "z"

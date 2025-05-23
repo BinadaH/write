@@ -3,7 +3,7 @@ class_name WAaction
 enum ACTION_TYPE{
 	ADDLINE,
 	DELETE_OBJ,
-	RESET_SCALE
+	RESET_SCALE,
 }
 
 var type
@@ -34,6 +34,8 @@ func set_action_reset_scale(objs):
 			self.data[o] = o.points
 		elif o is Control:
 			self.data[o] = [o.get_begin(), o.get_end()]
+
+
 
 func undo():
 	if type == ACTION_TYPE.ADDLINE:

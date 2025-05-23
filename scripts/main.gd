@@ -48,30 +48,33 @@ func _unhandled_input(event: InputEvent) -> void:
 			update_selection()
 		elif current_tool == TOOLS.LINE:
 			update_straight_line()
-		
-			
 	elif event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			mouse_down = event.pressed
-			
-		
-			
-			if !event.pressed:
-				if selection_rect:
-					update_selection()
-				elif current_tool == TOOLS.SELECT && !selection_made:
+			if event.pressed:
+				if current_tool == TOOLS.SELECT:
 					for child in canvas.get_children():
-						if child is Control:
-							var new_rect = child.get_global_rect()
-							if new_rect.has_point(get_screen_to_world_pos(event.position)):
-								var selection_waction = WAaction.new()
-								#selection_rect = new_rect
+						var new_rect = child.get_global_rect() if (child is Control) else child._edit_get_rect()
+						if new_rect.has_point(get_screen_to_world_pos(event.position)):
+							if selection_made && selection_made.objs.has(child):
+								print(selection_made.objs)
+								break
+							var selection_waction = WAaction.new()
+							#selection_rect = new_rect
+							if selection_made && event.ctrl_pressed:
+								selection_made.merge(new_rect)
+								selection_made.objs.append(child)
+								selection_waction.set_action_reset_scale(selection_made.objs)
+							else:
 								selection_made = ShapeBounds.new(new_rect)
 								selection_made.set_objs([child])
 								selection_waction.set_action_reset_scale([child])
-								wactions.push_front(selection_waction)
-								update_selection()
-								break
+								
+							wactions.push_front(selection_waction)
+							update_selection()
+							break
+				elif selection_rect:
+					update_selection()
 								
 		elif event.pressed && event.button_index == MOUSE_BUTTON_RIGHT:
 			if current_tool == TOOLS.SELECT:
@@ -82,17 +85,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.pressed && event.ctrl_pressed:
 			clear_selection_status()
 			if event.keycode == KEY_Y or (event.shift_pressed && event.keycode == KEY_Z):
-				#redo
-				var wa = wactions_redo.pop_front()
-				if wa:
-					wa.redo()
-					wactions.push_front(wa)
+				redo_waction()
 			elif event.keycode == KEY_Z:
-				#undo
-				var wa = wactions.pop_front()
-				if wa:
-					wa.undo()
-					wactions_redo.push_front(wa)
+				undo_waction()
 			elif event.keycode == KEY_V:
 				#paste
 				if DisplayServer.clipboard_has_image():
@@ -133,7 +128,7 @@ func _draw():
 			var r = o._edit_get_rect()
 			if o is Control:
 				r.position += o.position
-			draw_rect(r, Color.RED, false, 2)
+			draw_rect(r, Color.ALICE_BLUE, false, 1)
 
 var selection_rect
 var selection_made : ShapeBounds
@@ -214,13 +209,16 @@ var curr_straight_line = null
 var p1 = Vector2()
 var p2 = Vector2()
 func update_straight_line():
-
 	if !curr_straight_line:
 		if mouse_down:
 			curr_straight_line = $Line2D.duplicate()
 			curr_straight_line.default_color = current_col
 			canvas.add_child(curr_straight_line)
 			p1 = world_pos
+			
+			var wac = WAaction.new()
+			wac.set_action_add_line(curr_straight_line, canvas)
+			add_waction(wac)
 	else:
 		if mouse_down:
 			p2 = world_pos
@@ -303,6 +301,8 @@ func _process(delta: float) -> void:
 	background.queue_redraw()
 	dt += delta
 	
+	$CanvasGroup/MarginContainer/VBoxContainer/cam_zoom.value = cam.zoom
+	
 	
 	#print(get_viewport_rect().size / 2.0 / cam.zoom)
 	
@@ -377,3 +377,17 @@ func _on_file_index_pressed(index):
 
 func _on_line_btn_pressed():
 	change_tool(TOOLS.LINE)
+
+func undo_waction():
+	#undo
+	var wa = wactions.pop_front()
+	if wa:
+		wa.undo()
+		wactions_redo.push_front(wa)
+
+func redo_waction():
+	#redo
+	var wa = wactions_redo.pop_front()
+	if wa:
+		wa.redo()
+		wactions.push_front(wa)

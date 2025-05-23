@@ -81,8 +81,8 @@ func _on_draw_space_draw() -> void:
 		draw_space.draw_circle(mouse_pos - draw_space.position, 2, main.current_col)
 
 func _on_add_3d_pressed():
-	var v = $HBoxContainer/draw_space/edit_3d/SubViewportContainer/SubViewport
-	v.process_mode = Node.PROCESS_MODE_DISABLED
+	toggle_3d()
+	
 	var s = TextureRect.new()
 	s.size.x = 100
 	s.size.y = 100
@@ -92,34 +92,36 @@ func _on_add_3d_pressed():
 	var img = v.get_texture().get_image()
 	var img_tex = ImageTexture.create_from_image(img)
 	s.texture = img_tex
-	
-	
+	s.position = main.cam.cam.position
 	
 	main.canvas.add_child(s)
-	$HBoxContainer/draw_space/edit_3d.visible = false
-	$HBoxContainer/tools.visible = true
-	$HBoxContainer/tools3d.visible = false
-	
-	main.cam.process_mode = Node.PROCESS_MODE_INHERIT
-	
 
 
+
+
+@onready var v = $HBoxContainer/draw_space/edit_3d/SubViewportContainer/SubViewport
 func _on_add_3d_btn_pressed():
-	var v = $HBoxContainer/draw_space/edit_3d/SubViewportContainer/SubViewport
-	v.process_mode = Node.PROCESS_MODE_INHERIT
-	$HBoxContainer/draw_space/edit_3d.visible = true
-	$HBoxContainer/tools.visible = false
-	$HBoxContainer/tools3d.visible = true
-		
-	main.cam.process_mode = Node.PROCESS_MODE_DISABLED
-	
-	
+	toggle_3d()
 	items.clear()
 	if d3 && d3.scenes:
 		for s in d3.scenes.keys():
 			items.add_item(s)
 
 
+func toggle_3d():
+	if v.process_mode == Node.PROCESS_MODE_INHERIT:
+		v.process_mode = Node.PROCESS_MODE_DISABLED
+	else:
+		v.process_mode = Node.PROCESS_MODE_INHERIT
+		
+	$HBoxContainer/draw_space/edit_3d.visible = !$HBoxContainer/draw_space/edit_3d.visible
+	$HBoxContainer/tools.visible = !$HBoxContainer/tools.visible
+	$HBoxContainer/tools3d.visible = !$HBoxContainer/tools3d.visible
+	
+	if main.cam.process_mode == Node.PROCESS_MODE_INHERIT:
+		main.cam.process_mode = Node.PROCESS_MODE_DISABLED
+	else:
+		main.cam.process_mode = Node.PROCESS_MODE_INHERIT
 
 func _on_item_list_item_selected(index):
 	d3.set_scene(items.get_item_text(index))
@@ -135,3 +137,11 @@ func _on_file_index_pressed(index):
 
 func _on_select_btn_2_pressed():
 	pass # Replace with function body.
+
+
+func _on_undo_btn_pressed():
+	main.undo_waction()
+
+
+func _on_redo_btn_pressed():
+	main.redo_waction()

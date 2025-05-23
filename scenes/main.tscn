@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://c11lkbob5ipaf"]
+[gd_scene load_steps=17 format=3 uid="uid://c11lkbob5ipaf"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_brwaw"]
 [ext_resource type="Script" path="res://scripts/camera.gd" id="2_ln3mi"]
@@ -9,7 +9,11 @@
 [ext_resource type="Script" path="res://scripts/file_manager.gd" id="4_u6w2c"]
 [ext_resource type="Texture2D" uid="uid://bdyotc2mywy44" path="res://sprites/select.png" id="5_k3b4j"]
 [ext_resource type="Texture2D" uid="uid://cj07gqt44jcwy" path="res://sprites/delete.png" id="6_e1ynx"]
+[ext_resource type="Texture2D" uid="uid://butlctp22c1vl" path="res://sprites/line.png" id="6_qdwoi"]
 [ext_resource type="PackedScene" uid="uid://ca131cm7mqw2" path="res://scenes/3d_text.tscn" id="6_scejy"]
+[ext_resource type="Texture2D" uid="uid://d355jkq3bk8r0" path="res://sprites/undo.png" id="8_721ub"]
+[ext_resource type="Texture2D" uid="uid://kwu0u3i8qct" path="res://sprites/magnifying.png" id="8_hh7xv"]
+[ext_resource type="Texture2D" uid="uid://bbelyhmunu3r2" path="res://sprites/redo.png" id="9_md5fq"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_x6obk"]
 bg_color = Color(0.306923, 0.306923, 0.306923, 1)
@@ -119,12 +123,12 @@ text = "3d"
 [node name="GridContainer" type="HBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.7
 
 [node name="pen_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-size_flags_stretch_ratio = 3.0
 icon = ExtResource("3_75adb")
 icon_alignment = 1
 expand_icon = true
@@ -133,7 +137,6 @@ expand_icon = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-size_flags_stretch_ratio = 3.0
 icon = ExtResource("4_kpeg8")
 icon_alignment = 1
 expand_icon = true
@@ -142,7 +145,6 @@ expand_icon = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-size_flags_stretch_ratio = 3.0
 icon = ExtResource("5_k3b4j")
 icon_alignment = 1
 expand_icon = true
@@ -151,8 +153,7 @@ expand_icon = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-size_flags_stretch_ratio = 3.0
-text = "Line"
+icon = ExtResource("6_qdwoi")
 icon_alignment = 1
 expand_icon = true
 
@@ -166,6 +167,16 @@ size_flags_vertical = 3
 disabled = true
 icon = ExtResource("6_e1ynx")
 icon_alignment = 1
+
+[node name="undo_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("8_721ub")
+
+[node name="redo_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+icon = ExtResource("9_md5fq")
 
 [node name="VSeparator2" type="VSeparator" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
 layout_mode = 2
@@ -215,14 +226,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 5.0
-
-[node name="cam_zoom" type="VSlider" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-min_value = 1.0
-max_value = 4.0
-step = 0.1
-value = 2.0
 
 [node name="Panel" type="Panel" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer"]
 layout_mode = 2
@@ -342,6 +345,36 @@ render_target_update_mode = 0
 
 [node name="base_3d" parent="CanvasGroup/HBoxContainer/draw_space/edit_3d/SubViewportContainer/SubViewport" instance=ExtResource("6_scejy")]
 
+[node name="MarginContainer" type="MarginContainer" parent="CanvasGroup"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -250.0
+offset_right = 40.0
+grow_vertical = 0
+mouse_filter = 0
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasGroup/MarginContainer"]
+layout_mode = 2
+mouse_filter = 0
+alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="CanvasGroup/MarginContainer/VBoxContainer"]
+layout_mode = 2
+texture = ExtResource("8_hh7xv")
+
+[node name="cam_zoom" type="VSlider" parent="CanvasGroup/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 250)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 3
+min_value = 1.0
+max_value = 4.0
+step = 0.1
+value = 2.0
+
 [node name="open_file" type="FileDialog" parent="CanvasGroup"]
 title = "Open a File"
 initial_position = 2
@@ -377,7 +410,8 @@ script = ExtResource("4_u6w2c")
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/select_btn" to="." method="_on_select_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/line_btn" to="." method="_on_line_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/del_btn" to="." method="_on_del_btn_pressed"]
-[connection signal="value_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/cam_zoom" to="camera" method="_on_v_slider_value_changed"]
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/undo_btn" to="CanvasGroup" method="_on_undo_btn_pressed"]
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/redo_btn" to="CanvasGroup" method="_on_redo_btn_pressed"]
 [connection signal="color_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel/pen_tools/ColorPickerButton" to="." method="_on_color_picker_button_color_changed"]
 [connection signal="value_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel/pen_tools/pen_size" to="." method="_on_h_slider_value_changed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools3d/Panel/VBoxContainer/add_3d" to="CanvasGroup" method="_on_add_3d_pressed"]
@@ -386,4 +420,5 @@ script = ExtResource("4_u6w2c")
 [connection signal="draw" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_draw"]
 [connection signal="mouse_entered" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_mouse_entered"]
 [connection signal="mouse_exited" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_mouse_exited"]
+[connection signal="value_changed" from="CanvasGroup/MarginContainer/VBoxContainer/cam_zoom" to="camera" method="_on_v_slider_value_changed"]
 [connection signal="file_selected" from="CanvasGroup/open_file" to="file_manager" method="_on_open_file_file_selected"]

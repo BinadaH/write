@@ -56,7 +56,7 @@ func draw(canvas : Node2D):
 	canvas.draw_line(points[2], points[3], Color.ALICE_BLUE, 3)
 	canvas.draw_line(points[3], points[0], Color.ALICE_BLUE, 3)
 	for p in points:
-		canvas.draw_circle(p, 5, Color.RED)
+		canvas.draw_circle(p, 6, Color.ALICE_BLUE)
 		
 	#print(points)
 
@@ -107,4 +107,11 @@ func move(rel : Vector2):
 
 func get_rect() -> Rect2:
 	return Rect2(points[0], points[2] - points[0])
-			
+
+func merge(b : Rect2):
+	var r = get_rect().merge(b)
+	points[0] = r.position
+	points[1] = Vector2(r.end.x, r.position.y)
+	points[2] = r.end
+	points[3] = Vector2(r.position.x, r.end.y)
+	

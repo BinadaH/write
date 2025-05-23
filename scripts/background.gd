@@ -2,9 +2,9 @@ extends Node2D
 
 @onready var main = get_parent()
 
-var GRID_COL = Color.GAINSBORO
+var GRID_COL = Color("#9497A2")
 var GRID_WEIGHT = 0.5
-var BACK_COL = Color(90 / 255, 89 / 255, 99/255, 1)
+var BACK_COL = Color("#333231")
 var SQUARE_SIZE = 50
 
 func _ready():
@@ -39,5 +39,5 @@ func _draw() -> void:
 			for y in n_y:
 				var c_x = (first_off_x + x) * SQUARE_SIZE
 				var c_y = (first_off_y + y) * SQUARE_SIZE
-				draw_circle(Vector2(c_x, c_y), GRID_WEIGHT, GRID_COL)
+				draw_circle(Vector2(c_x, c_y), GRID_WEIGHT * 5 / main.cam.cam.zoom.x, GRID_COL)
 	

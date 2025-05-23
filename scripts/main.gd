@@ -20,7 +20,8 @@ var mouse_vel = Vector2.ZERO
 enum TOOLS{
 	PEN,
 	HAND,
-	SELECT
+	SELECT,
+	LINE
 }
 
 var current_tool
@@ -44,17 +45,37 @@ func _unhandled_input(event: InputEvent) -> void:
 		if current_tool == TOOLS.PEN:
 			update_line()
 		elif current_tool == TOOLS.SELECT:
-
 			update_selection()
+		elif current_tool == TOOLS.LINE:
+			update_straight_line()
 		
 			
 	elif event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			mouse_down = event.pressed
-			if !event.pressed && selection_rect:
-				update_selection()
+			
+		
+			
+			if !event.pressed:
+				if selection_rect:
+					update_selection()
+				elif current_tool == TOOLS.SELECT && !selection_made:
+					for child in canvas.get_children():
+						if child is Control:
+							var new_rect = child.get_global_rect()
+							if new_rect.has_point(get_screen_to_world_pos(event.position)):
+								var selection_waction = WAaction.new()
+								#selection_rect = new_rect
+								selection_made = ShapeBounds.new(new_rect)
+								selection_made.set_objs([child])
+								selection_waction.set_action_reset_scale([child])
+								wactions.push_front(selection_waction)
+								update_selection()
+								break
+								
 		elif event.pressed && event.button_index == MOUSE_BUTTON_RIGHT:
 			if current_tool == TOOLS.SELECT:
+				
 				clear_selection_status()
 				
 	elif event is InputEventKey:
@@ -72,6 +93,19 @@ func _unhandled_input(event: InputEvent) -> void:
 				if wa:
 					wa.undo()
 					wactions_redo.push_front(wa)
+			elif event.keycode == KEY_V:
+				#paste
+				if DisplayServer.clipboard_has_image():
+					var img = DisplayServer.clipboard_get_image()
+					var tex = ImageTexture.create_from_image(img)
+					var s = TextureRect.new()
+					s.expand_mode = s.EXPAND_IGNORE_SIZE
+					s.size = tex.get_size()
+					s.z_index = -1
+					s.texture = tex
+					canvas.add_child(s)
+					print(img)
+					
 		if event.pressed && event.keycode == KEY_DELETE:
 			_on_del_btn_pressed()
 			
@@ -83,6 +117,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 			
 var curr_pres = []
+
+
 
 func _draw():
 	if selection_rect:
@@ -173,6 +209,25 @@ func exponential_moving_average(points, alpha=0.9):
 	
 	return smoothed_points
 	
+	
+var curr_straight_line = null
+var p1 = Vector2()
+var p2 = Vector2()
+func update_straight_line():
+
+	if !curr_straight_line:
+		if mouse_down:
+			curr_straight_line = $Line2D.duplicate()
+			curr_straight_line.default_color = current_col
+			canvas.add_child(curr_straight_line)
+			p1 = world_pos
+	else:
+		if mouse_down:
+			p2 = world_pos
+			curr_straight_line.points = [p1, p2]
+		else:
+			curr_straight_line = null
+	
 func update_line():
 	if mouse_down:
 			#if curr_line.points.size() == 0 || (curr_line.points[curr_line.points.size()- 1] - world_pos).length() > 5 / cam.zoom:
@@ -244,7 +299,7 @@ func add_waction(waction : WAaction):
 	wactions_redo.clear()
 
 func _process(delta: float) -> void:
-	$CanvasGroup/Label.text = str(delta)
+	#$CanvasGroup/Label.text = str(delta)
 	background.queue_redraw()
 	dt += delta
 	
@@ -272,15 +327,13 @@ func clear_selection_status():
 	selection_rect = null
 
 
-@onready var sec_tools = $CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/sec_tools
 func change_tool(tool : TOOLS):
-	if current_tool == TOOLS.SELECT:
-		clear_selection_status()
+	clear_selection_status()
 		
 	if tool == TOOLS.SELECT:
-		sec_tools.visible = true
+		$CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/del_btn.disabled = false
 	else:
-		sec_tools.visible = false
+		$CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/del_btn.disabled = true
 		
 	current_tool = tool
 
@@ -311,3 +364,16 @@ func _on_del_btn_pressed():
 
 func _on_h_slider_value_changed(value):
 	current_size = value
+
+
+func _on_file_index_pressed(index):
+	if index == 0:
+		$file_manager._on_save_btn_pressed()
+	elif index == 1:
+		$CanvasGroup._on_open_btn_pressed()
+	elif index == 2:
+		$CanvasGroup._on_new_btn_pressed()
+
+
+func _on_line_btn_pressed():
+	change_tool(TOOLS.LINE)

@@ -72,16 +72,26 @@ func scale(rel : Vector2, proportional : bool):
 			if is_nan(k.y) || is_inf(k.y):
 				k = Vector2(k.x, 1)
 		
+		var old_points = points.duplicate()
 		for i in range(points.size()):
 			points[i] = k * (points[i] - origin) + origin
 		
-		for obj in objs:
-			if obj is Line2D:
-				for i in range(obj.points.size()):
-					obj.points[i] = k * (obj.points[i] - origin) + origin
-			elif obj is Control:
-				obj.set_begin(points[0])
-				obj.set_end(points[2])
+		if get_rect().get_area() < 20:
+			points = old_points
+		else:
+			for obj in objs:
+				if obj is Line2D:
+					for i in range(obj.points.size()):
+						obj.points[i] = k * (obj.points[i] - origin) + origin
+				elif obj is Control:
+					obj.size *= k
+					#obj.size.x = max(obj.size.x, 10)
+					#obj.size.y = max(obj.size.y, 10)
+					
+					obj.position = k * (obj.position - origin) + origin
+	
+				
+				
 
 func move(rel : Vector2):
 	for i in points.size():
@@ -92,7 +102,7 @@ func move(rel : Vector2):
 			for i in range(obj.points.size()):
 				obj.points[i] += rel
 		elif obj is Control:
-			obj.position = points[0]
+			obj.position += rel
 
 
 func get_rect() -> Rect2:

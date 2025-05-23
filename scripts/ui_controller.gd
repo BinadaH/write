@@ -5,6 +5,49 @@ var mouse_pos = Vector2()
 @onready var d3 = $HBoxContainer/draw_space/edit_3d/SubViewportContainer/SubViewport/base_3d
 @onready var items = $HBoxContainer/tools3d/Panel/VBoxContainer/HBoxContainer/Panel/ItemList
 
+@onready var quick_cols = $HBoxContainer/tools/Panel/VBoxContainer/quick_cols.get_children()
+
+
+var color_palette = [
+	Color("#E0E1CF"), #light
+	Color("#EB9486"), #orange
+	Color("#903A4B"), #red
+	Color("#B8B8F3"), #purple
+	Color("#2274A5"), #
+	Color.BLACK,
+]
+
+func _ready():
+	var cl = Callable(self, "change_col")
+	
+	var i = 0
+	for ch in quick_cols:
+		ch.connect("pressed", cl.bind(i))
+		var s = StyleBoxFlat.new()
+		s.bg_color = color_palette[i]
+		var s2 : StyleBoxFlat = s.duplicate()
+		s2.border_color = Color.BLACK
+		s2.set_border_width_all(5)
+		
+		ch.add_theme_stylebox_override("normal", s)
+		ch.add_theme_stylebox_override("pressed", s)
+		ch.add_theme_stylebox_override("hover", s)
+		#ch.add_theme_stylebox_override("focus", s)
+		ch.add_theme_stylebox_override("disabled", s2)
+		i += 1
+		
+		
+var last_quick_col = 0
+func change_col(index):
+	quick_cols[last_quick_col].disabled = false
+	quick_cols[index].disabled = true
+	main.current_col = quick_cols[index].get_theme_stylebox("normal").bg_color
+	last_quick_col = index
+	
+	if main.current_tool != main.TOOLS.PEN and main.current_tool != main.TOOLS.LINE:
+		main.change_tool(main.TOOLS.PEN)
+	
+	
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		mouse_pos = event.position
@@ -34,7 +77,8 @@ func _on_open_btn_pressed() -> void:
 
 @onready var draw_space = $HBoxContainer/draw_space
 func _on_draw_space_draw() -> void:
-	draw_space.draw_circle(mouse_pos - draw_space.position, 2, main.current_col)
+	if Input.mouse_mode == Input.MOUSE_MODE_HIDDEN:
+		draw_space.draw_circle(mouse_pos - draw_space.position, 2, main.current_col)
 
 func _on_add_3d_pressed():
 	var v = $HBoxContainer/draw_space/edit_3d/SubViewportContainer/SubViewport
@@ -44,6 +88,7 @@ func _on_add_3d_pressed():
 	s.size.y = 100
 	s.expand_mode = s.EXPAND_IGNORE_SIZE
 	s.z_index = -1
+	
 	var img = v.get_texture().get_image()
 	var img_tex = ImageTexture.create_from_image(img)
 	s.texture = img_tex
@@ -82,3 +127,11 @@ func _on_item_list_item_selected(index):
 
 func _on_option_button_item_selected(index):
 	d3.set_cam_mode(index)
+
+
+func _on_file_index_pressed(index):
+	pass # Replace with function body.
+
+
+func _on_select_btn_2_pressed():
+	pass # Replace with function body.

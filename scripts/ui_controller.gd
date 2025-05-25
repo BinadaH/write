@@ -42,10 +42,12 @@ func change_col(index):
 	quick_cols[last_quick_col].disabled = false
 	quick_cols[index].disabled = true
 	main.current_col = quick_cols[index].get_theme_stylebox("normal").bg_color
+	main.color_selector.color = main.current_col 
 	last_quick_col = index
 	
 	if main.current_tool != main.TOOLS.PEN and main.current_tool != main.TOOLS.LINE:
 		main.change_tool(main.TOOLS.PEN)
+		
 	
 	
 func _input(event: InputEvent) -> void:
@@ -68,7 +70,9 @@ func _on_draw_space_mouse_exited() -> void:
 func _on_new_btn_pressed():
 	main.cam.cam.position = Vector2(0, 0)
 	main.cam.zoom = 1
+	main.wactions.clear()
 	main.clear_canvas()
+	
 	
 @onready var open_file = $open_file
 func _on_open_btn_pressed() -> void:
@@ -145,3 +149,6 @@ func _on_undo_btn_pressed():
 
 func _on_redo_btn_pressed():
 	main.redo_waction()
+
+func _on_spacer_btn_pressed():
+	main.change_tool(main.TOOLS.SPACER)

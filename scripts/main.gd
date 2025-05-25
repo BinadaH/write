@@ -21,16 +21,17 @@ enum TOOLS{
 	PEN,
 	HAND,
 	SELECT,
-	LINE
+	LINE,
+	SPACER
 }
 
 var current_tool
 
 @onready var open_file = $CanvasGroup/open_file
-
+@onready var color_selector = $CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools/color_selector
 func _ready() -> void:
 	line = $Line2D
-	$CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel/pen_tools/pen_size.value = current_size
+	$CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools/pen_size.value = current_size
 	current_tool = TOOLS.PEN
 	current_col = Color.BLACK
 	
@@ -48,13 +49,16 @@ func _unhandled_input(event: InputEvent) -> void:
 			update_selection()
 		elif current_tool == TOOLS.LINE:
 			update_straight_line()
+		elif current_tool == TOOLS.SPACER:
+			update_spacer()
+			
 	elif event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			mouse_down = event.pressed
 			if event.pressed:
 				if current_tool == TOOLS.SELECT:
 					for child in canvas.get_children():
-						var new_rect = child.get_global_rect() if (child is Control) else child._edit_get_rect()
+						var new_rect = get_object_rect(child)
 						if new_rect.has_point(get_screen_to_world_pos(event.position)):
 							if selection_made && selection_made.objs.has(child):
 								print(selection_made.objs)
@@ -116,6 +120,7 @@ var curr_pres = []
 
 
 
+
 func _draw():
 	if selection_rect:
 		draw_rect(selection_rect, background.BACK_COL.lightened(0.2), 2)
@@ -126,10 +131,31 @@ func _draw():
 	if selection_made:
 		selection_made.draw(self)
 		for o in selection_made.objs:
-			var r = o._edit_get_rect()
-			if o is Control:
-				r.position += o.position
+			var r = get_object_rect(o)
 			draw_rect(r, Color.ALICE_BLUE, false, 1)
+
+var spacer_to_update_set = false
+var spacer_to_update = []
+func update_spacer():
+	if !spacer_to_update_set && mouse_down:
+		for o in canvas.get_children():
+			var r = get_object_rect(o)
+			if r.position.y > world_pos.y:
+				spacer_to_update.append(o)
+				
+		spacer_to_update_set = true
+		if spacer_to_update.size() > 0:
+			var w = WAaction.new()
+			w.set_action_spacer(spacer_to_update)
+			add_waction(w)
+		
+	if mouse_down:
+		for i in spacer_to_update:
+			i.position.y += mouse_rel.y / cam.zoom
+	else:
+		spacer_to_update.clear()
+		spacer_to_update_set = false
+				
 
 var selection_rect
 var selection_made : ShapeBounds
@@ -148,9 +174,7 @@ func update_selection():
 				var objs = []
 				var selection_waction = WAaction.new()
 				for c in canvas.get_children():
-					var r = c._edit_get_rect()
-					if c is Control:
-						r.position += c.position
+					var r = get_object_rect(c)
 					if selection_rect.abs().encloses(r):
 						new_rect = new_rect.merge(r) if new_rect else r
 						objs.append(c)
@@ -329,6 +353,7 @@ func clear_canvas():
 func clear_selection_status():
 	selection_made = null
 	selection_rect = null
+	queue_redraw()
 
 
 func change_tool(tool : TOOLS):
@@ -395,3 +420,8 @@ func redo_waction():
 	if wa:
 		wa.redo()
 		wactions.push_front(wa)
+		
+func get_object_rect(obj) -> Rect2:
+	var r = obj._edit_get_rect()
+	r.position += obj.position
+	return r

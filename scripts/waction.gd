@@ -4,6 +4,7 @@ enum ACTION_TYPE{
 	ADDLINE,
 	DELETE_OBJ,
 	RESET_SCALE,
+	SPACER
 }
 
 var type
@@ -35,7 +36,11 @@ func set_action_reset_scale(objs):
 		elif o is Control:
 			self.data[o] = [o.get_begin(), o.get_end()]
 
-
+func set_action_spacer(objs):
+	self.type = ACTION_TYPE.SPACER
+	self.data = {}
+	for o in objs:
+		data[o] = o.position.y
 
 func undo():
 	if type == ACTION_TYPE.ADDLINE:
@@ -55,6 +60,11 @@ func undo():
 				o.set_begin(data[o][0])
 				o.set_end(data[o][1])
 				self.data[o] = tmp
+	elif type == ACTION_TYPE.SPACER:
+		for o in self.data.keys():
+			var tmp = o.position.y
+			o.position.y = self.data[o]
+			self.data[o] = tmp
 
 func redo():
 	if type == ACTION_TYPE.ADDLINE:
@@ -74,6 +84,11 @@ func redo():
 				o.set_begin(data[o][0])
 				o.set_end(data[o][1])
 				self.data[o] = tmp
+	elif type == ACTION_TYPE.SPACER:
+		for o in self.data.keys():
+			var tmp = o.position.y
+			o.position.y = self.data[o]
+			self.data[o] = tmp
 
 func clear_data():
 	if type == ACTION_TYPE.ADDLINE:

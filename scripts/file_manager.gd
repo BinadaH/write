@@ -19,9 +19,13 @@ func _on_save_btn_pressed() -> void:
 			var press_points = []
 			for i in child.width_curve.point_count:
 				press_points.append(child.width_curve.get_point_position(i)[1])
+			var points = Array(child.points)
+			for p in range(points.size()):
+				points[p] += child.position
+			
 			data_to_save["lines"].append(
 				{
-					"points": Array(child.points),
+					"points": points,
 					"press":press_points,
 					"col": [
 						child.default_color.r,
@@ -49,6 +53,7 @@ func _on_save_btn_pressed() -> void:
 
 func _on_open_file_file_selected(path: String) -> void:
 	main.clear_selection_status()
+	main.wactions.clear()
 	if main.open_file.file_mode == FileDialog.FILE_MODE_SAVE_FILE:
 		var f = FileAccess.open(path, FileAccess.WRITE)
 		f.store_string(data_to_save)

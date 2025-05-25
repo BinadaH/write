@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://c11lkbob5ipaf"]
+[gd_scene load_steps=18 format=3 uid="uid://c11lkbob5ipaf"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_brwaw"]
 [ext_resource type="Script" path="res://scripts/camera.gd" id="2_ln3mi"]
@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://cj07gqt44jcwy" path="res://sprites/delete.png" id="6_e1ynx"]
 [ext_resource type="Texture2D" uid="uid://butlctp22c1vl" path="res://sprites/line.png" id="6_qdwoi"]
 [ext_resource type="PackedScene" uid="uid://ca131cm7mqw2" path="res://scenes/3d_text.tscn" id="6_scejy"]
+[ext_resource type="Texture2D" uid="uid://c36b4c1k5hsby" path="res://sprites/spacer.png" id="7_si75d"]
 [ext_resource type="Texture2D" uid="uid://d355jkq3bk8r0" path="res://sprites/undo.png" id="8_721ub"]
 [ext_resource type="Texture2D" uid="uid://kwu0u3i8qct" path="res://sprites/magnifying.png" id="8_hh7xv"]
 [ext_resource type="Texture2D" uid="uid://bbelyhmunu3r2" path="res://sprites/redo.png" id="9_md5fq"]
@@ -123,13 +124,21 @@ text = "3d"
 [node name="GridContainer" type="HBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.7
+size_flags_stretch_ratio = 2.0
 
 [node name="pen_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 icon = ExtResource("3_75adb")
+icon_alignment = 1
+expand_icon = true
+
+[node name="line_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+icon = ExtResource("6_qdwoi")
 icon_alignment = 1
 expand_icon = true
 
@@ -149,11 +158,11 @@ icon = ExtResource("5_k3b4j")
 icon_alignment = 1
 expand_icon = true
 
-[node name="line_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
+[node name="spacer_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-icon = ExtResource("6_qdwoi")
+icon = ExtResource("7_si75d")
 icon_alignment = 1
 expand_icon = true
 
@@ -172,11 +181,13 @@ icon_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 icon = ExtResource("8_721ub")
+icon_alignment = 1
 
 [node name="redo_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 icon = ExtResource("9_md5fq")
+icon_alignment = 1
 
 [node name="VSeparator2" type="VSeparator" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
 layout_mode = 2
@@ -221,17 +232,12 @@ size_flags_vertical = 3
 [node name="VSeparator3" type="VSeparator" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
+[node name="Panel" type="Panel" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
-size_flags_stretch_ratio = 5.0
+size_flags_stretch_ratio = 0.3
 
-[node name="Panel" type="Panel" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="pen_tools" type="VBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel"]
+[node name="pen_tools" type="HBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -239,16 +245,21 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ColorPickerButton" type="ColorPickerButton" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel/pen_tools"]
+[node name="color_selector" type="ColorPickerButton" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools"]
 layout_mode = 2
 text = "col"
 
-[node name="pen_size" type="HSlider" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel/pen_tools"]
+[node name="pen_size" type="VSlider" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools"]
 layout_mode = 2
 min_value = 0.5
 max_value = 10.0
 step = 0.5
 value = 0.5
+
+[node name="Control" type="Control" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
 
 [node name="tools3d" type="Control" parent="CanvasGroup/HBoxContainer"]
 visible = false
@@ -406,14 +417,15 @@ script = ExtResource("4_u6w2c")
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/new_btn" to="CanvasGroup" method="_on_new_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/add_3d_btn" to="CanvasGroup" method="_on_add_3d_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/pen_btn" to="." method="_on_pen_btn_pressed"]
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/line_btn" to="." method="_on_line_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/hand_btn" to="." method="_on_hand_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/select_btn" to="." method="_on_select_btn_pressed"]
-[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/line_btn" to="." method="_on_line_btn_pressed"]
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/spacer_btn" to="CanvasGroup" method="_on_spacer_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/del_btn" to="." method="_on_del_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/undo_btn" to="CanvasGroup" method="_on_undo_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/redo_btn" to="CanvasGroup" method="_on_redo_btn_pressed"]
-[connection signal="color_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel/pen_tools/ColorPickerButton" to="." method="_on_color_picker_button_color_changed"]
-[connection signal="value_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel/pen_tools/pen_size" to="." method="_on_h_slider_value_changed"]
+[connection signal="color_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools/color_selector" to="." method="_on_color_picker_button_color_changed"]
+[connection signal="value_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools/pen_size" to="." method="_on_h_slider_value_changed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools3d/Panel/VBoxContainer/add_3d" to="CanvasGroup" method="_on_add_3d_pressed"]
 [connection signal="item_selected" from="CanvasGroup/HBoxContainer/tools3d/Panel/VBoxContainer/OptionButton" to="CanvasGroup" method="_on_option_button_item_selected"]
 [connection signal="item_selected" from="CanvasGroup/HBoxContainer/tools3d/Panel/VBoxContainer/HBoxContainer/Panel/ItemList" to="CanvasGroup" method="_on_item_list_item_selected"]

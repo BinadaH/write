@@ -98,6 +98,7 @@ func _unhandled_input(event: InputEvent) -> void:
 					s.size = tex.get_size()
 					s.z_index = -1
 					s.texture = tex
+					s.position = cam.cam.position
 					canvas.add_child(s)
 					print(img)
 					
@@ -212,6 +213,9 @@ func update_straight_line():
 	if !curr_straight_line:
 		if mouse_down:
 			curr_straight_line = $Line2D.duplicate()
+			curr_straight_line.width_curve = Curve.new()
+			curr_straight_line.width_curve.add_point(Vector2(0, current_size))
+			curr_straight_line.width_curve.add_point(Vector2(1, current_size))
 			curr_straight_line.default_color = current_col
 			canvas.add_child(curr_straight_line)
 			p1 = world_pos
@@ -297,7 +301,7 @@ func add_waction(waction : WAaction):
 	wactions_redo.clear()
 
 func _process(delta: float) -> void:
-	#$CanvasGroup/Label.text = str(delta)
+	$CanvasGroup/Label.text = str(delta)
 	background.queue_redraw()
 	dt += delta
 	

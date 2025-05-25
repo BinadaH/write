@@ -9,7 +9,8 @@ var data_to_save = {
 func _on_save_btn_pressed() -> void:
 	main.clear_selection_status()
 	data_to_save = {
-		"lines": []
+		"lines": [],
+		"imgs": []
 	}
 	for child in main.canvas.get_children():
 		if child is Line2D:
@@ -31,6 +32,11 @@ func _on_save_btn_pressed() -> void:
 					"width": child.width
 				}
 			) 
+		elif child is TextureRect:
+			data_to_save["imgs"].append({
+				"p": child.position,
+				"t": Marshalls.raw_to_base64(child.texture.get_image().save_png_to_buffer())
+			})
 	
 	
 	main.open_file.file_mode = FileDialog.FILE_MODE_SAVE_FILE
@@ -75,3 +81,16 @@ func _on_open_file_file_selected(path: String) -> void:
 			
 			l_d.default_color = Color(l["col"][0], l["col"][1], l["col"][2], l["col"][3])
 			l_d.width = l["width"]
+	
+		if data.keys().has("imgs"):
+			for img in data["imgs"]:
+				var r = TextureRect.new()
+				var a = img["p"].split(",")
+				var x = a[0].trim_prefix("(")
+				var y = a[1].trim_suffix(")")
+				r.position = Vector2(float(x), float(y))
+				var im = Image.new()
+				var err = im.load_png_from_buffer(Marshalls.base64_to_raw(img["t"]))
+				print(err)
+				r.texture = ImageTexture.create_from_image(im)
+				main.canvas.add_child(r)

@@ -152,3 +152,9 @@ func _on_redo_btn_pressed():
 
 func _on_spacer_btn_pressed():
 	main.change_tool(main.TOOLS.SPACER)
+
+func _on_copy_btn_pressed():
+	main.handle_copy()
+
+func _on_paste_btn_pressed():
+	main.handle_paste(false)

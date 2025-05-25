@@ -4,7 +4,8 @@ enum ACTION_TYPE{
 	ADDLINE,
 	DELETE_OBJ,
 	RESET_SCALE,
-	SPACER
+	SPACER,
+	PASTE
 }
 
 var type
@@ -42,6 +43,10 @@ func set_action_spacer(objs):
 	for o in objs:
 		data[o] = o.position.y
 
+func set_action_paste(objs, parent):
+	self.type = ACTION_TYPE.PASTE
+	self.data = [objs, parent]
+
 func undo():
 	if type == ACTION_TYPE.ADDLINE:
 		if data[0] && data[1]:
@@ -65,6 +70,9 @@ func undo():
 			var tmp = o.position.y
 			o.position.y = self.data[o]
 			self.data[o] = tmp
+	elif type == ACTION_TYPE.PASTE:
+		for c in data[0]:
+			data[1].remove_child(c)
 
 func redo():
 	if type == ACTION_TYPE.ADDLINE:
@@ -89,7 +97,10 @@ func redo():
 			var tmp = o.position.y
 			o.position.y = self.data[o]
 			self.data[o] = tmp
-
+	elif type == ACTION_TYPE.PASTE:
+		for c in data[0]:
+			data[1].add_child(c)
+			
 func clear_data():
 	if type == ACTION_TYPE.ADDLINE:
 		data[0].queue_free()

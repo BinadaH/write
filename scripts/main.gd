@@ -8,6 +8,7 @@ var line : Line2D
 var curr_line = null
 var press = 0
 var current_col = Color.WHITE
+var ctrl_pressed = false
 @onready var current_size = $Line2D.width
 
 var wactions = []
@@ -57,26 +58,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			mouse_down = event.pressed
 			if event.pressed:
 				if current_tool == TOOLS.SELECT:
-					for child in canvas.get_children():
-						var new_rect = get_object_rect(child)
-						if new_rect.has_point(get_screen_to_world_pos(event.position)):
-							if selection_made && selection_made.objs.has(child):
-								print(selection_made.objs)
-								break
-							var selection_waction = WAaction.new()
-							#selection_rect = new_rect
-							if selection_made && event.ctrl_pressed:
-								selection_made.merge(new_rect)
-								selection_made.objs.append(child)
-								selection_waction.set_action_reset_scale(selection_made.objs)
-							else:
-								selection_made = ShapeBounds.new(new_rect)
-								selection_made.set_objs([child])
-								selection_waction.set_action_reset_scale([child])
-								
-							wactions.push_front(selection_waction)
-							update_selection()
-							break
+					single_click_selection()
 				elif selection_rect:
 					update_selection()
 								
@@ -87,29 +69,22 @@ func _unhandled_input(event: InputEvent) -> void:
 				
 	elif event is InputEventKey:
 		if event.pressed && event.ctrl_pressed:
-			clear_selection_status()
-			if event.keycode == KEY_Y or (event.shift_pressed && event.keycode == KEY_Z):
-				redo_waction()
-			elif event.keycode == KEY_Z:
-				undo_waction()
-			elif event.keycode == KEY_V:
-				#paste
-				if DisplayServer.clipboard_has_image():
-					var img = DisplayServer.clipboard_get_image()
-					var tex = ImageTexture.create_from_image(img)
-					var s = TextureRect.new()
-					s.expand_mode = s.EXPAND_IGNORE_SIZE
-					s.size = tex.get_size()
-					s.z_index = -1
-					s.texture = tex
-					s.position = cam.cam.position
-					canvas.add_child(s)
-					print(img)
-					
+			if event.keycode == KEY_C:
+				handle_copy()
+			else:
+				clear_selection_status()
+				if event.keycode == KEY_Y or (event.shift_pressed && event.keycode == KEY_Z):
+					redo_waction()
+				elif event.keycode == KEY_Z:
+					undo_waction()
+				elif event.keycode == KEY_V:
+					#paste
+					handle_paste()
+				
+			
 		if event.pressed && event.keycode == KEY_DELETE:
 			_on_del_btn_pressed()
-			
-				
+		
 		elif event.pressed && event.keycode == KEY_ESCAPE:
 			if current_tool == TOOLS.SELECT:
 				clear_selection_status()
@@ -117,8 +92,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 			
 var curr_pres = []
-
-
 
 
 func _draw():
@@ -330,7 +303,7 @@ func _process(delta: float) -> void:
 	dt += delta
 	
 	$CanvasGroup/MarginContainer/VBoxContainer/cam_zoom.value = cam.zoom
-	
+	ctrl_pressed = Input.is_key_pressed(KEY_CTRL)
 	
 	#print(get_viewport_rect().size / 2.0 / cam.zoom)
 	
@@ -425,3 +398,69 @@ func get_object_rect(obj) -> Rect2:
 	var r = obj._edit_get_rect()
 	r.position += obj.position
 	return r
+
+func get_objects_rect(objs : Array) -> Rect2:
+	var new_rect = null
+	for o in objs:
+		var r = get_object_rect(o)
+		new_rect = r.merge(new_rect) if new_rect else r
+		
+	return new_rect
+	
+var copied_pos = Vector2()
+var copied_items = []
+func handle_copy():
+	if selection_made:
+		copied_items = selection_made.objs.duplicate()
+		DisplayServer.clipboard_set("")
+		copied_pos = selection_made.points[0]
+	print(copied_items)
+
+func handle_paste(on_mouse = true):
+	var wac = WAaction.new()
+	if DisplayServer.clipboard_has_image():
+		var img = DisplayServer.clipboard_get_image()
+		var tex = ImageTexture.create_from_image(img)
+		var s = TextureRect.new()
+		s.expand_mode = s.EXPAND_IGNORE_SIZE
+		s.size = tex.get_size()
+		s.z_index = -1
+		s.texture = tex
+		s.position = world_pos if on_mouse else (cam.cam.position - s.size / 2)
+		canvas.add_child(s)
+		wac.set_action_paste([s], canvas)
+	elif copied_items.size() > 0:
+		var new_data = []
+		for c in copied_items:
+			var cd = c.duplicate()
+			canvas.add_child(cd)
+			new_data.append(cd)
+		var r = get_objects_rect(new_data)
+		selection_made = ShapeBounds.new(r)
+		selection_made.set_objs(new_data)
+		selection_made.move((world_pos if on_mouse else (cam.cam.position - r.size / 2)) - copied_pos)
+		queue_redraw()
+		wac.set_action_paste(new_data, canvas)
+	add_waction(wac)
+
+func single_click_selection():
+	for child in canvas.get_children():
+		var new_rect = get_object_rect(child)
+		if new_rect.has_point(world_pos):
+			if selection_made && selection_made.objs.has(child):
+				print(selection_made.objs)
+				continue
+			var selection_waction = WAaction.new()
+			#selection_rect = new_rect
+			if selection_made && ctrl_pressed:
+				selection_made.merge(new_rect)
+				selection_made.objs.append(child)
+				selection_waction.set_action_reset_scale(selection_made.objs)
+			else:
+				selection_made = ShapeBounds.new(new_rect)
+				selection_made.set_objs([child])
+				selection_waction.set_action_reset_scale([child])
+				
+			wactions.push_front(selection_waction)
+			update_selection()
+			break

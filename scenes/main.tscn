@@ -27,7 +27,6 @@ bg_color = Color(0.306923, 0.306923, 0.306923, 1)
 script = ExtResource("1_brwaw")
 
 [node name="Line2D" type="Line2D" parent="."]
-width = 3.0
 joint_mode = 1
 begin_cap_mode = 2
 end_cap_mode = 2

@@ -51,6 +51,8 @@ func get_handle():
 
 func draw(canvas : Node2D):
 	#canvas.draw_primitive(points, [], [])
+
+		
 	canvas.draw_line(points[0], points[1], Color.ALICE_BLUE, 3)
 	canvas.draw_line(points[1], points[2], Color.ALICE_BLUE, 3)
 	canvas.draw_line(points[2], points[3], Color.ALICE_BLUE, 3)
@@ -103,7 +105,6 @@ func move(rel : Vector2):
 				obj.points[i] += rel
 		elif obj is Control:
 			obj.position += rel
-
 
 func get_rect() -> Rect2:
 	return Rect2(points[0], points[2] - points[0])

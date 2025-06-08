@@ -19,8 +19,8 @@ func _draw() -> void:
 	var first_off_x = floor((cam_pos.x - screen_size.x / 2 / main.cam.zoom) / SQUARE_SIZE)
 	var first_off_y = floor((cam_pos.y - screen_size.y / 2 / main.cam.zoom) / SQUARE_SIZE)
 
-	var n_x = round(screen_size.x / SQUARE_SIZE / main.cam.zoom)+ 1
-	var n_y = round(screen_size.y / SQUARE_SIZE / main.cam.zoom) + 1
+	var n_x = round(screen_size.x / SQUARE_SIZE / main.cam.zoom) + 2
+	var n_y = round(screen_size.y / SQUARE_SIZE / main.cam.zoom) + 2
 	
 	if draw_grid:
 		for x in n_x:
@@ -41,3 +41,8 @@ func _draw() -> void:
 				var c_y = (first_off_y + y) * SQUARE_SIZE
 				draw_circle(Vector2(c_x, c_y), GRID_WEIGHT * 5 / main.cam.cam.zoom.x, GRID_COL)
 	
+
+func get_grid_pos(world_pos, fac = 1) -> Vector2:
+	var x = round(world_pos.x / (SQUARE_SIZE * fac)) * (SQUARE_SIZE * fac)
+	var y = round(world_pos.y / (SQUARE_SIZE * fac)) * (SQUARE_SIZE * fac)
+	return Vector2(x, y)

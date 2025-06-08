@@ -39,6 +39,8 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
+		var start_time_us = Time.get_ticks_usec()	
+		
 		mouse_rel = event.relative
 		pos = event.position 
 		world_pos = get_screen_to_world_pos(pos)
@@ -53,6 +55,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif current_tool == TOOLS.SPACER:
 			update_spacer()
 			
+		var end_time_us = Time.get_ticks_usec()
+		print("Mouse Motion event (us)", end_time_us - start_time_us)
+			
 	elif event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			mouse_down = event.pressed
@@ -61,12 +66,10 @@ func _unhandled_input(event: InputEvent) -> void:
 					single_click_selection()
 				elif selection_rect:
 					update_selection()
-								
 		elif event.pressed && event.button_index == MOUSE_BUTTON_RIGHT:
 			if current_tool == TOOLS.SELECT:
-				
 				clear_selection_status()
-				
+
 	elif event is InputEventKey:
 		if event.pressed && event.ctrl_pressed:
 			if event.keycode == KEY_C:
@@ -80,8 +83,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				elif event.keycode == KEY_V:
 					#paste
 					handle_paste()
-				
-			
+
 		if event.pressed && event.keycode == KEY_DELETE:
 			_on_del_btn_pressed()
 		
@@ -90,10 +92,11 @@ func _unhandled_input(event: InputEvent) -> void:
 				clear_selection_status()
 
 
-			
-var curr_pres = []
+var curr_pres = PackedFloat32Array()
 
-
+var size = 0
+var sel_rect = 0
+var sel_anim = 0
 func _draw():
 	if selection_rect:
 		draw_rect(selection_rect, background.BACK_COL.lightened(0.2), 2)
@@ -103,9 +106,20 @@ func _draw():
 		#draw_rect(r, Color.RED, false, 2)
 	if selection_made:
 		selection_made.draw(self)
+		if mouse_down:
+			var c = Color.ALICE_BLUE
+			c.a = 0.2
+			var r = selection_made.get_rect()
+			sel_anim += 1
+			r.grow(sin(sel_anim))
+			draw_rect(r, c, true)
+		else:
+			sel_anim = 0
 		for o in selection_made.objs:
 			var r = get_object_rect(o)
 			draw_rect(r, Color.ALICE_BLUE, false, 1)
+	else:
+		sel_anim = 0 
 
 var spacer_to_update_set = false
 var spacer_to_update = []
@@ -133,6 +147,7 @@ func update_spacer():
 var selection_rect
 var selection_made : ShapeBounds
 var selection_waction : WAaction
+var selection_moving = false
 func update_selection():
 	if !selection_made:
 		if mouse_down:
@@ -163,14 +178,17 @@ func update_selection():
 		if mouse_down:
 			if !selection_made.handle_selected:
 				if selection_made.is_cursor_inside(world_pos):
-					selection_made.move(mouse_rel / cam.zoom)
+					selection_moving = true
 				elif !selection_made.calc_handle(world_pos):
-					clear_selection_status()
-					
+					if !selection_moving:
+						clear_selection_status()
 			else:
 				selection_made.scale(mouse_rel / cam.zoom, Input.is_key_pressed(KEY_SHIFT))
+			if selection_moving && selection_made:
+				selection_made.move(mouse_rel / cam.zoom)
 		else:
 			selection_made.handle_selected = false
+			selection_moving = false
 			
 	queue_redraw()
 
@@ -182,27 +200,11 @@ func calc_t(p0, p1):
 	return pow((p0 - p1).length(), A)
 
 var dt = 0
-var curr_points = []
+var curr_points = PackedVector2Array()
 
 const velocity_factor = 10
-func exponential_moving_average(points, alpha=0.9):
-	var smoothed_points = []
-	smoothed_points.append(points[0])  # Initialize with the first point
-	
-	for i in range(1, len(points)):
-		# Get the previous smoothed point
-		var prev_smoothed = smoothed_points[-1]
-		
-		# Calculate the smoothed x and y values
-		var smoothed_x = alpha * points[i].x + (1 - alpha) * prev_smoothed.x
-		var smoothed_y = alpha * points[i].y + (1 - alpha) * prev_smoothed.y
-		
-		# Create a new Point object with the smoothed coordinates
-		smoothed_points.append(Vector2(smoothed_x, smoothed_y))
-	
-	return smoothed_points
-	
-	
+
+var smoothed_points = PackedVector2Array()
 var curr_straight_line = null
 var p1 = Vector2()
 var p2 = Vector2()
@@ -215,79 +217,67 @@ func update_straight_line():
 			curr_straight_line.width_curve.add_point(Vector2(1, current_size))
 			curr_straight_line.default_color = current_col
 			canvas.add_child(curr_straight_line)
-			p1 = world_pos
-			
+			p1 = world_pos if !ctrl_pressed else background.get_grid_pos(world_pos, 0.5)
 			var wac = WAaction.new()
 			wac.set_action_add_line(curr_straight_line, canvas)
 			add_waction(wac)
 	else:
 		if mouse_down:
-			p2 = world_pos
+			p2 = world_pos if !ctrl_pressed else background.get_grid_pos(world_pos, 0.5)
 			curr_straight_line.points = [p1, p2]
 		else:
 			curr_straight_line = null
-	
+
+var smoothed_pressures = PackedFloat32Array()
+var last_smooth_point = null
+var last_smooth_pressure = null
 func update_line():
 	if mouse_down:
-			#if curr_line.points.size() == 0 || (curr_line.points[curr_line.points.size()- 1] - world_pos).length() > 5 / cam.zoom:
 		if curr_line:
-			curr_line.width_curve = Curve.new()
+			if last_smooth_point && (world_pos - last_smooth_point).length() < 3:
+				return
 			curr_points.append(world_pos)
 			curr_pres.append(press)
+		
+			var num_points = curr_pres.size()
+			var dx = 1 / float(num_points)
 			
-			
-			var smoothed_pressures = []
-			var alpha = 0.1  # Smoothing factor for EMA
-			
-			for i in range(curr_pres.size()):
-				if i == 0:
-					smoothed_pressures.append(curr_pres[i])
-				else:
-					smoothed_pressures.append(smoothed_pressures[i - 1] * (1 - alpha) + curr_pres[i] * alpha)
-
-			var dx = 1 / float(curr_line.points.size())
-
-			for i in smoothed_pressures.size():
-				var pdx = (i * curr_line.points.size() / smoothed_pressures.size()) * dx
-				var ppres = smoothed_pressures[i]
-				
-				curr_line.width_curve.add_point(Vector2(pdx, ppres))
-			
-				
-			
-			var draw_points = exponential_moving_average(curr_points, 0.25)
-			
-			var arr = PackedVector2Array(draw_points)
-			if Input.is_action_pressed("ui_left"):
-				curr_line.points = curr_points
+			if last_smooth_pressure:
+				last_smooth_pressure = last_smooth_pressure * (0.9) + press * 0.1
 			else:
-				curr_line.points = arr
+				last_smooth_pressure = press
 			
-			#curr_line.width_curve.add_point(Vector2(curr_line.points.size() * dx, press))
+			smoothed_pressures.append(last_smooth_pressure)
 			
+			if last_smooth_point:
+				last_smooth_point = 0.25 * world_pos + (0.75) * last_smooth_point
+			else:
+				last_smooth_point = curr_points[0] 
+				
+			smoothed_points.append(last_smooth_point)
+			curr_line.points = smoothed_points
 		else:
-			
-
-			
 			curr_line = line.duplicate()
 			curr_line.default_color = current_col
-			curr_line.width = current_size 
+			curr_line.width = current_size
+			curr_line.width_curve = Curve.new()
 			canvas.add_child(curr_line)
 			var wac = WAaction.new()
 			wac.set_action_add_line(curr_line, canvas)
 			add_waction(wac)
-			
 	else:
 		if curr_line:
 			var x =  curr_points.size() % 4
-			print(x)
 			while x > 0:
 				curr_line.add_point(curr_points[curr_points.size() - x])
 				x -= 1
 			curr_line = null
-			curr_pres = []
-			curr_points = []
-
+			last_smooth_point = null
+			last_smooth_pressure = null
+			smoothed_pressures.clear()
+			smoothed_points.clear()
+			curr_pres.clear()
+			curr_points.clear()
 
 func add_waction(waction : WAaction):
 	if wactions.size() > MAX_UNDO_COUNT:
@@ -297,6 +287,8 @@ func add_waction(waction : WAaction):
 		w.clear_data()
 	wactions_redo.clear()
 
+
+var to_update_curve_line = 0
 func _process(delta: float) -> void:
 	$CanvasGroup/Label.text = str(delta)
 	background.queue_redraw()
@@ -305,6 +297,20 @@ func _process(delta: float) -> void:
 	$CanvasGroup/MarginContainer/VBoxContainer/cam_zoom.value = cam.zoom
 	ctrl_pressed = Input.is_key_pressed(KEY_CTRL)
 	
+	
+	if to_update_curve_line >= 3:
+		if curr_line && last_smooth_point:
+			curr_line.width_curve.clear_points()
+			var num_points = curr_line.points.size()
+			var dx = 1 / float(curr_line.points.size())
+			curr_line.width_curve.add_point(Vector2(0, smoothed_pressures[0]))
+			var sample_interval = 10
+			for i in range(1, num_points):
+				if i % sample_interval == 0 or i == num_points - 1:
+					curr_line.width_curve.add_point(Vector2(i * dx, smoothed_pressures[i]))
+			to_update_curve_line = 0
+	
+	to_update_curve_line += 1
 	#print(get_viewport_rect().size / 2.0 / cam.zoom)
 	
 @onready var background = $background
@@ -312,16 +318,11 @@ func _process(delta: float) -> void:
 @onready var cam = $camera
 
 func get_screen_to_world_pos(mouse_pos : Vector2) -> Vector2:
-	var cam_pos = cam.cam.position
-	var screen_size = get_viewport_rect().size
-	var world_pos = cam_pos + (mouse_pos - screen_size / 2) / cam.zoom#mouse_pos / cam.zoom + (cam_pos - screen_size / cam.zoom / 2 )
-	
-	return world_pos
+	return cam.cam.position + (mouse_pos - get_viewport_rect().size / 2) / cam.zoom 
 
 func clear_canvas():
 	for c in canvas.get_children():
 		c.queue_free()
-	
 	
 func clear_selection_status():
 	selection_made = null
@@ -414,7 +415,7 @@ func handle_copy():
 		copied_items = selection_made.objs.duplicate()
 		DisplayServer.clipboard_set("")
 		copied_pos = selection_made.points[0]
-	print(copied_items)
+	#print(copied_items)
 
 func handle_paste(on_mouse = true):
 	var wac = WAaction.new()
@@ -448,7 +449,7 @@ func single_click_selection():
 		var new_rect = get_object_rect(child)
 		if new_rect.has_point(world_pos):
 			if selection_made && selection_made.objs.has(child):
-				print(selection_made.objs)
+				#print(selection_made.objs)
 				continue
 			var selection_waction = WAaction.new()
 			#selection_rect = new_rect

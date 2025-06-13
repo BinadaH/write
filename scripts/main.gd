@@ -36,15 +36,20 @@ func _ready() -> void:
 	current_tool = TOOLS.PEN
 	current_col = Color.BLACK
 	
+	OS.low_processor_usage_mode_sleep_usec = 30000
+	OS.low_processor_usage_mode = true
+
+
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
-		var start_time_us = Time.get_ticks_usec()	
-		
 		mouse_rel = event.relative
 		pos = event.position 
 		world_pos = get_screen_to_world_pos(pos)
+		
 		press = max(event.pressure, 0.3)
+	
+		
 		
 		if current_tool == TOOLS.PEN:
 			update_line()
@@ -55,9 +60,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif current_tool == TOOLS.SPACER:
 			update_spacer()
 			
-		var end_time_us = Time.get_ticks_usec()
-		print("Mouse Motion event (us)", end_time_us - start_time_us)
-			
+		
 	elif event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			mouse_down = event.pressed
@@ -90,8 +93,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.pressed && event.keycode == KEY_ESCAPE:
 			if current_tool == TOOLS.SELECT:
 				clear_selection_status()
+	
 
-
+	
+	
 var curr_pres = PackedFloat32Array()
 
 var size = 0
@@ -234,8 +239,7 @@ var last_smooth_pressure = null
 func update_line():
 	if mouse_down:
 		if curr_line:
-			if last_smooth_point && (world_pos - last_smooth_point).length() < 3:
-				return
+			
 			curr_points.append(world_pos)
 			curr_pres.append(press)
 		
@@ -265,6 +269,7 @@ func update_line():
 			var wac = WAaction.new()
 			wac.set_action_add_line(curr_line, canvas)
 			add_waction(wac)
+			
 	else:
 		if curr_line:
 			var x =  curr_points.size() % 4
@@ -278,6 +283,7 @@ func update_line():
 			smoothed_points.clear()
 			curr_pres.clear()
 			curr_points.clear()
+			
 
 func add_waction(waction : WAaction):
 	if wactions.size() > MAX_UNDO_COUNT:
@@ -289,6 +295,9 @@ func add_waction(waction : WAaction):
 
 
 var to_update_curve_line = 0
+var buf = []
+
+
 func _process(delta: float) -> void:
 	$CanvasGroup/Label.text = str(delta)
 	background.queue_redraw()
@@ -297,7 +306,7 @@ func _process(delta: float) -> void:
 	$CanvasGroup/MarginContainer/VBoxContainer/cam_zoom.value = cam.zoom
 	ctrl_pressed = Input.is_key_pressed(KEY_CTRL)
 	
-	
+	var start_time_us = Time.get_ticks_usec()
 	if to_update_curve_line >= 3:
 		if curr_line && last_smooth_point:
 			curr_line.width_curve.clear_points()
@@ -311,6 +320,12 @@ func _process(delta: float) -> void:
 			to_update_curve_line = 0
 	
 	to_update_curve_line += 1
+	var end_time_us = Time.get_ticks_usec()
+
+	
+	var not_low_processor_mode = Input.is_action_pressed("cam_move") || (current_tool == TOOLS.HAND && mouse_down) || curr_line
+	OS.low_processor_usage_mode = !not_low_processor_mode
+	
 	#print(get_viewport_rect().size / 2.0 / cam.zoom)
 	
 @onready var background = $background

@@ -59,13 +59,13 @@ func _process(delta: float) -> void:
 	draw_space.queue_redraw()
 
 
+			
 func _on_draw_space_mouse_entered() -> void:
-	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
-	print("On Draw Space")
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	
 
 func _on_draw_space_mouse_exited() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	print("Not On Draw Space")
 
 @onready var main = get_parent()
 

@@ -36,6 +36,7 @@ func _process(delta: float) -> void:
 	m_rel = main.pos - last_pos
 	if Input.is_action_pressed("cam_move") || (main.current_tool == main.TOOLS.HAND && main.mouse_down):
 		cam.position -= m_rel / zoom
+
 	last_pos = main.pos
 	
 	cam.zoom = Vector2(zoom, zoom)

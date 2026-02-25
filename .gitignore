@@ -1,0 +1,9 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+/deps/pdf2img/build/*
+/deps/pdf2img/libs/*
+/deps/pdf2img/bin/*
+
+/test_docs/

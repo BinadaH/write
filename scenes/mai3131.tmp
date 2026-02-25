@@ -1,0 +1,107 @@
+[gd_scene load_steps=5 format=3 uid="uid://c11lkbob5ipaf"]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_brwaw"]
+[ext_resource type="Script" path="res://scripts/camera.gd" id="2_ln3mi"]
+[ext_resource type="Script" path="res://scripts/ui_controller.gd" id="2_t8a8w"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qtu3f"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_brwaw")
+
+[node name="Line2D" type="Line2D" parent="."]
+width = 5.0
+joint_mode = 1
+begin_cap_mode = 2
+end_cap_mode = 2
+
+[node name="CanvasGroup" type="CanvasLayer" parent="."]
+visible = false
+script = ExtResource("2_t8a8w")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasGroup"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="tools" type="Control" parent="CanvasGroup/HBoxContainer"]
+z_index = 1
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.09
+
+[node name="Panel" type="Panel" parent="CanvasGroup/HBoxContainer/tools"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_qtu3f")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="save_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Save"
+
+[node name="open_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Open"
+
+[node name="VSlider" type="VSlider" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+min_value = 0.1
+max_value = 2.0
+step = 0.1
+value = 1.0
+
+[node name="draw_space" type="Control" parent="CanvasGroup/HBoxContainer"]
+z_index = -1
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 1
+
+[node name="background" type="Panel" parent="CanvasGroup/HBoxContainer/draw_space"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="open_file" type="FileDialog" parent="CanvasGroup"]
+title = "Open a File"
+initial_position = 2
+size = Vector2i(400, 500)
+ok_button_text = "Open"
+file_mode = 0
+
+[node name="camera" type="Node2D" parent="."]
+script = ExtResource("2_ln3mi")
+
+[node name="camera" type="Camera2D" parent="camera"]
+
+[node name="background" type="Node2D" parent="."]
+self_modulate = Color(1, 1, 1, 0.317647)
+
+[node name="canvas" type="Node2D" parent="."]
+
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/save_btn" to="." method="_on_save_btn_pressed"]
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/open_btn" to="." method="_on_open_btn_pressed"]
+[connection signal="value_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/VSlider" to="camera" method="_on_v_slider_value_changed"]
+[connection signal="draw" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_draw"]
+[connection signal="mouse_entered" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_mouse_entered"]
+[connection signal="mouse_exited" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_mouse_exited"]
+[connection signal="file_selected" from="CanvasGroup/open_file" to="." method="_on_open_file_file_selected"]
+[connection signal="draw" from="background" to="." method="_on_background_draw"]

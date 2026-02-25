@@ -1,0 +1,174 @@
+[gd_scene load_steps=7 format=3 uid="uid://c11lkbob5ipaf"]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_brwaw"]
+[ext_resource type="Script" path="res://scripts/camera.gd" id="2_ln3mi"]
+[ext_resource type="Script" path="res://scripts/ui_controller.gd" id="2_t8a8w"]
+[ext_resource type="Script" path="res://scripts/background.gd" id="4_scug2"]
+[ext_resource type="Script" path="res://scripts/file_manager.gd" id="4_u6w2c"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qtu3f"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_brwaw")
+
+[node name="Line2D" type="Line2D" parent="."]
+width = 3.0
+joint_mode = 1
+begin_cap_mode = 2
+end_cap_mode = 2
+sharp_limit = 0.025
+round_precision = 32
+antialiased = true
+
+[node name="CanvasGroup" type="CanvasLayer" parent="."]
+script = ExtResource("2_t8a8w")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasGroup"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="tools" type="Control" parent="CanvasGroup/HBoxContainer"]
+z_index = 1
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.09
+
+[node name="Panel" type="Panel" parent="CanvasGroup/HBoxContainer/tools"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_qtu3f")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="save_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Save"
+
+[node name="open_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Open"
+
+[node name="new_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
+layout_mode = 2
+text = "New"
+
+[node name="GridContainer" type="HBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="pen_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "p"
+
+[node name="hand_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "h"
+
+[node name="select_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "s"
+
+[node name="sec_tools" type="HBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="del_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/sec_tools"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "del"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="cam_zoom" type="VSlider" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+min_value = 1.0
+max_value = 4.0
+step = 0.1
+value = 2.0
+
+[node name="Panel" type="Panel" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="pen_tools" type="VBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel/pen_tools"]
+layout_mode = 2
+text = "col"
+
+[node name="pen_size" type="HSlider" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel/pen_tools"]
+layout_mode = 2
+min_value = 0.5
+max_value = 10.0
+value = 0.5
+
+[node name="draw_space" type="Control" parent="CanvasGroup/HBoxContainer"]
+z_index = -1
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 1
+
+[node name="open_file" type="FileDialog" parent="CanvasGroup"]
+title = "Open a File"
+initial_position = 2
+size = Vector2i(400, 500)
+ok_button_text = "Open"
+file_mode = 0
+filters = PackedStringArray("*.wdata")
+
+[node name="camera" type="Node2D" parent="."]
+script = ExtResource("2_ln3mi")
+
+[node name="camera" type="Camera2D" parent="camera"]
+position_smoothing_enabled = true
+position_smoothing_speed = 20.0
+
+[node name="background" type="Node2D" parent="."]
+script = ExtResource("4_scug2")
+
+[node name="canvas" type="Node2D" parent="."]
+
+[node name="file_manager" type="Node" parent="."]
+script = ExtResource("4_u6w2c")
+
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/save_btn" to="file_manager" method="_on_save_btn_pressed"]
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/open_btn" to="CanvasGroup" method="_on_open_btn_pressed"]
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/new_btn" to="CanvasGroup" method="_on_new_btn_pressed"]
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/pen_btn" to="." method="_on_pen_btn_pressed"]
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/hand_btn" to="." method="_on_hand_btn_pressed"]
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/select_btn" to="." method="_on_select_btn_pressed"]
+[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/sec_tools/del_btn" to="." method="_on_del_btn_pressed"]
+[connection signal="value_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/cam_zoom" to="camera" method="_on_v_slider_value_changed"]
+[connection signal="color_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel/pen_tools/ColorPickerButton" to="." method="_on_color_picker_button_color_changed"]
+[connection signal="value_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/HBoxContainer/Panel/pen_tools/pen_size" to="." method="_on_h_slider_value_changed"]
+[connection signal="draw" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_draw"]
+[connection signal="mouse_entered" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_mouse_entered"]
+[connection signal="mouse_exited" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_mouse_exited"]
+[connection signal="file_selected" from="CanvasGroup/open_file" to="file_manager" method="_on_open_file_file_selected"]

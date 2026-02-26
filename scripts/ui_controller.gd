@@ -41,12 +41,12 @@ var last_quick_col = 0
 func change_col(index):
 	quick_cols[last_quick_col].disabled = false
 	quick_cols[index].disabled = true
-	main.current_col = quick_cols[index].get_theme_stylebox("normal").bg_color
-	main.color_selector.color = main.current_col 
+	main.editor_data.current_col = quick_cols[index].get_theme_stylebox("normal").bg_color
+	main.color_selector.color = main.editor_data.current_col 
 	last_quick_col = index
 	
-	if main.current_tool != main.TOOLS.PEN and main.current_tool != main.TOOLS.LINE:
-		main.change_tool(main.TOOLS.PEN)
+	if main.editor_data.current_tool != main.editor_data.TOOLS.PEN and main.editor_data.current_tool != main.editor_data.TOOLS.LINE:
+		main.editor_data.change_tool(main.editor_data.TOOLS.PEN, main.del_btn)
 		
 	
 	
@@ -67,12 +67,12 @@ func _on_draw_space_mouse_entered() -> void:
 func _on_draw_space_mouse_exited() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
-@onready var main = get_parent()
+@onready var main : Main = get_parent()
 
 func _on_new_btn_pressed():
 	main.cam.cam.position = Vector2(0, 0)
 	main.cam.zoom = 1
-	main.wactions.clear()
+	main.waction_manager.wactions.clear()
 	main.clear_canvas()
 	
 	
@@ -84,7 +84,7 @@ func _on_open_btn_pressed() -> void:
 @onready var draw_space = $HBoxContainer/draw_space
 func _on_draw_space_draw() -> void:
 	if Input.mouse_mode == Input.MOUSE_MODE_HIDDEN:
-		draw_space.draw_circle(mouse_pos - draw_space.position, 2, main.current_col)
+		draw_space.draw_circle(mouse_pos - draw_space.position, 2, main.editor_data.current_col)
 
 func _on_add_3d_pressed():
 	toggle_3d()
@@ -146,14 +146,14 @@ func _on_select_btn_2_pressed():
 
 
 func _on_undo_btn_pressed():
-	main.undo_waction()
+	main.waction_manager.undo_waction()
 
 
 func _on_redo_btn_pressed():
-	main.redo_waction()
+	main.waction_manager.redo_waction()
 
 func _on_spacer_btn_pressed():
-	main.change_tool(main.TOOLS.SPACER)
+	main.editor_data.change_tool(main.editor_data.TOOLS.SPACER, main.del_btn)
 
 func _on_copy_btn_pressed():
 	main.handle_copy()

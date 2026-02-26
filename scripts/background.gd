@@ -2,10 +2,10 @@ extends Node2D
 
 @onready var main = get_parent()
 
-var GRID_COL = Color("#9497A2")
-var GRID_WEIGHT = 0.5
+var GRID_COL = Color("505050ff")
+var GRID_WEIGHT = 4
 var BACK_COL = Color("#333231")
-var SQUARE_SIZE = 50
+var SQUARE_SIZE = 100
 
 func _ready():
 	RenderingServer.set_default_clear_color(BACK_COL)

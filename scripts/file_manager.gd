@@ -1,7 +1,7 @@
 extends Node
 
 
-@onready var main = get_parent()
+@onready var main : Main = get_parent()
 
 var data_to_save = {
 		"lines": []
@@ -53,7 +53,7 @@ func _on_save_btn_pressed() -> void:
 
 func _on_open_file_file_selected(path: String) -> void:
 	main.clear_selection_status()
-	main.wactions.clear()
+	main.waction_manager.wactions.clear()
 	if main.open_file.file_mode == FileDialog.FILE_MODE_SAVE_FILE:
 		var f = FileAccess.open(path, FileAccess.WRITE)
 		f.store_string(data_to_save)
@@ -68,7 +68,7 @@ func _on_open_file_file_selected(path: String) -> void:
 		
 		var data = JSON.parse_string(str)
 		for l in data["lines"]:
-			var l_d = main.line.duplicate()
+			var l_d = main.draw_line_logic.base_line.duplicate()
 			main.canvas.add_child(l_d)
 			l_d.width_curve = Curve.new()
 			for p in l["points"]:

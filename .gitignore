@@ -7,3 +7,6 @@
 /deps/pdf2img/bin/*
 
 /test_docs/
+
+*.tmp
+*.uid

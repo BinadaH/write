@@ -138,6 +138,8 @@ func process():
 			to_update_curve_line = 0
 	
 	to_update_curve_line += 1
+	
+	
 
 var curr_straight_line = null
 func create_straight_line():

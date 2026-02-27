@@ -2,5 +2,11 @@
 
 [ext_resource type="Script" uid="uid://beyi0fe8o860y" path="res://scripts/text.gd" id="1_wwb76"]
 
-[node name="Text" type="Node2D" unique_id=1404767997]
+[node name="Text" type="MarginContainer" unique_id=941809701 groups=["text"]]
+offset_right = 18.0
+offset_bottom = 35.0
 script = ExtResource("1_wwb76")
+
+[node name="content" type="MarginContainer" parent="." unique_id=97912192]
+layout_mode = 2
+mouse_filter = 2

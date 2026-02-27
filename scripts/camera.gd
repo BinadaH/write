@@ -11,7 +11,7 @@ var move = false
 const cam_speed = 0
 var zoom = 1
 
-func _input(event: InputEvent) -> void:
+func _unhandled_input(event):
 	if event is InputEventMouseMotion:
 		pass
 		#print(new_pos)

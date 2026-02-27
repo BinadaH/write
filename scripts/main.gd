@@ -7,7 +7,8 @@ var waction_manager : WActionManager
 
 @onready var open_file = $CanvasGroup/open_file
 @onready var color_selector = $CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools/color_selector
-func _ready() -> void:	
+func _ready() -> void:
+	EditorFuncs.set_main(self)
 	$CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools/pen_size.value = 1
 	
 	editor_data = EditorData.new(self)
@@ -166,6 +167,7 @@ func _process(delta: float) -> void:
 	editor_data.ctrl_pressed = Input.is_key_pressed(KEY_CTRL)
 	var start_time_us = Time.get_ticks_usec()
 	draw_line_logic.process()
+	editor_data.process()
 	var end_time_us = Time.get_ticks_usec()
 
 	var not_low_processor_mode = Input.is_action_pressed("cam_move") || (editor_data.current_tool == editor_data.TOOLS.HAND && editor_data.mouse_down) || draw_line_logic.curr_line
@@ -175,8 +177,6 @@ func _process(delta: float) -> void:
 @onready var canvas = $canvas
 @onready var cam = $camera
 
-func get_screen_to_world_pos(mouse_pos : Vector2) -> Vector2:
-	return cam.cam.position + (mouse_pos - get_viewport_rect().size / 2) / cam.zoom 
 
 func clear_canvas():
 	for c in canvas.get_children():

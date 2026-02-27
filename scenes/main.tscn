@@ -10,13 +10,13 @@
 [ext_resource type="Texture2D" uid="uid://bdyotc2mywy44" path="res://sprites/select.png" id="5_k3b4j"]
 [ext_resource type="Texture2D" uid="uid://cj07gqt44jcwy" path="res://sprites/delete.png" id="6_e1ynx"]
 [ext_resource type="Texture2D" uid="uid://butlctp22c1vl" path="res://sprites/line.png" id="6_qdwoi"]
-[ext_resource type="PackedScene" uid="uid://ca131cm7mqw2" path="res://scenes/3d_text.tscn" id="6_scejy"]
 [ext_resource type="Texture2D" uid="uid://c36b4c1k5hsby" path="res://sprites/spacer.png" id="7_si75d"]
 [ext_resource type="Texture2D" uid="uid://d355jkq3bk8r0" path="res://sprites/undo.png" id="8_721ub"]
 [ext_resource type="Texture2D" uid="uid://kwu0u3i8qct" path="res://sprites/magnifying.png" id="8_hh7xv"]
 [ext_resource type="Texture2D" uid="uid://bbelyhmunu3r2" path="res://sprites/redo.png" id="9_md5fq"]
 [ext_resource type="Texture2D" uid="uid://bobhfh7lewrgp" path="res://sprites/copy.png" id="11_ihhco"]
 [ext_resource type="Texture2D" uid="uid://fhqkhr7u7gys" path="res://sprites/paste.png" id="12_glvk3"]
+[ext_resource type="Texture2D" uid="uid://ljvcgnw200ss" path="res://icon.svg" id="17_muem4"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_x6obk"]
 bg_color = Color(0.306923, 0.306923, 0.306923, 1)
@@ -33,7 +33,7 @@ end_cap_mode = 2
 sharp_limit = 0.025
 round_precision = 32
 
-[node name="CanvasGroup" type="CanvasLayer" parent="." unique_id=1220850446]
+[node name="CanvasGroup" type="CanvasLayer" parent="." unique_id=1220850446 groups=["ui_canvas_group"]]
 script = ExtResource("2_t8a8w")
 
 [node name="Label" type="Label" parent="CanvasGroup" unique_id=2062333126]
@@ -118,11 +118,6 @@ text = "Open"
 visible = false
 layout_mode = 2
 text = "New"
-
-[node name="add_3d_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer" unique_id=64003329]
-visible = false
-layout_mode = 2
-text = "3d"
 
 [node name="GridContainer" type="HBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer" unique_id=1481243775]
 layout_mode = 2
@@ -280,63 +275,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 3.0
 
-[node name="tools3d" type="Control" parent="CanvasGroup/HBoxContainer" unique_id=272528037]
-visible = false
-z_index = 1
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-size_flags_stretch_ratio = 5.0
-
-[node name="Panel" type="Panel" parent="CanvasGroup/HBoxContainer/tools3d" unique_id=1679102476]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_qtu3f")
-
-[node name="VBoxContainer" type="HBoxContainer" parent="CanvasGroup/HBoxContainer/tools3d/Panel" unique_id=1127807334]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="add_3d" type="Button" parent="CanvasGroup/HBoxContainer/tools3d/Panel/VBoxContainer" unique_id=1693106317]
-layout_mode = 2
-text = "Add"
-
-[node name="OptionButton" type="OptionButton" parent="CanvasGroup/HBoxContainer/tools3d/Panel/VBoxContainer" unique_id=420277402]
-layout_mode = 2
-alignment = 1
-selected = 0
-item_count = 2
-popup/item_0/text = "Persp"
-popup/item_0/id = 0
-popup/item_1/text = "Ortho"
-popup/item_1/id = 1
-
-[node name="HBoxContainer" type="HBoxContainer" parent="CanvasGroup/HBoxContainer/tools3d/Panel/VBoxContainer" unique_id=1955846959]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="Panel" type="Panel" parent="CanvasGroup/HBoxContainer/tools3d/Panel/VBoxContainer/HBoxContainer" unique_id=181639998]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="ItemList" type="ItemList" parent="CanvasGroup/HBoxContainer/tools3d/Panel/VBoxContainer/HBoxContainer/Panel" unique_id=1530752053]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-item_count = 2
-
 [node name="draw_space" type="Control" parent="CanvasGroup/HBoxContainer" unique_id=700897060]
 z_index = -1
 layout_mode = 2
@@ -344,37 +282,6 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 95.0
 mouse_filter = 1
-
-[node name="edit_3d" type="Panel" parent="CanvasGroup/HBoxContainer/draw_space" unique_id=568012128]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="SubViewportContainer" type="SubViewportContainer" parent="CanvasGroup/HBoxContainer/draw_space/edit_3d" unique_id=717754759]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -256.0
-offset_top = -256.0
-offset_right = 256.0
-offset_bottom = 256.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="SubViewport" type="SubViewport" parent="CanvasGroup/HBoxContainer/draw_space/edit_3d/SubViewportContainer" unique_id=613815498]
-process_mode = 4
-transparent_bg = true
-handle_input_locally = false
-render_target_update_mode = 0
-
-[node name="base_3d" parent="CanvasGroup/HBoxContainer/draw_space/edit_3d/SubViewportContainer/SubViewport" unique_id=1670369456 instance=ExtResource("6_scejy")]
 
 [node name="MarginContainer" type="MarginContainer" parent="CanvasGroup" unique_id=1805054951]
 anchors_preset = 2
@@ -431,11 +338,14 @@ z_index = 2
 [node name="file_manager" type="Node" parent="." unique_id=1781527999]
 script = ExtResource("4_u6w2c")
 
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=455426944]
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("17_muem4")
+
 [connection signal="index_pressed" from="CanvasGroup/HBoxContainer/MenuBar2/File" to="." method="_on_file_index_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/save_btn" to="file_manager" method="_on_save_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/open_btn" to="CanvasGroup" method="_on_open_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/new_btn" to="CanvasGroup" method="_on_new_btn_pressed"]
-[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/add_3d_btn" to="CanvasGroup" method="_on_add_3d_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/pen_btn" to="." method="_on_pen_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/line_btn" to="." method="_on_line_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/text_btn" to="." method="_on_text_btn_pressed"]
@@ -449,9 +359,6 @@ script = ExtResource("4_u6w2c")
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/paste_btn" to="CanvasGroup" method="_on_paste_btn_pressed"]
 [connection signal="color_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools/color_selector" to="." method="_on_color_picker_button_color_changed"]
 [connection signal="value_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools/pen_size" to="." method="_on_h_slider_value_changed"]
-[connection signal="pressed" from="CanvasGroup/HBoxContainer/tools3d/Panel/VBoxContainer/add_3d" to="CanvasGroup" method="_on_add_3d_pressed"]
-[connection signal="item_selected" from="CanvasGroup/HBoxContainer/tools3d/Panel/VBoxContainer/OptionButton" to="CanvasGroup" method="_on_option_button_item_selected"]
-[connection signal="item_selected" from="CanvasGroup/HBoxContainer/tools3d/Panel/VBoxContainer/HBoxContainer/Panel/ItemList" to="CanvasGroup" method="_on_item_list_item_selected"]
 [connection signal="draw" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_draw"]
 [connection signal="mouse_entered" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_mouse_entered"]
 [connection signal="mouse_exited" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_mouse_exited"]

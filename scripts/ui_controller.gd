@@ -2,8 +2,6 @@ extends CanvasLayer
 
 
 var mouse_pos = Vector2()
-@onready var d3 = $HBoxContainer/draw_space/edit_3d/SubViewportContainer/SubViewport/base_3d
-@onready var items = $HBoxContainer/tools3d/Panel/VBoxContainer/HBoxContainer/Panel/ItemList
 
 @onready var quick_cols = $HBoxContainer/tools/Panel/VBoxContainer/quick_cols.get_children()
 
@@ -50,7 +48,7 @@ func change_col(index):
 		
 	
 	
-func _input(event: InputEvent) -> void:
+func _unhandled_input(event):
 	if event is InputEventMouseMotion:
 		mouse_pos = event.position
 
@@ -58,8 +56,6 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	draw_space.queue_redraw()
 
-
-			
 func _on_draw_space_mouse_entered() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	
@@ -86,55 +82,11 @@ func _on_draw_space_draw() -> void:
 	if Input.mouse_mode == Input.MOUSE_MODE_HIDDEN:
 		draw_space.draw_circle(mouse_pos - draw_space.position, 2, main.editor_data.current_col)
 
-func _on_add_3d_pressed():
-	toggle_3d()
-	
-	var s = TextureRect.new()
-	s.size.x = 100
-	s.size.y = 100
-	s.expand_mode = s.EXPAND_IGNORE_SIZE
-	s.z_index = -1
-	
-	var img = v.get_texture().get_image()
-	var img_tex = ImageTexture.create_from_image(img)
-	s.texture = img_tex
-	s.position = main.cam.cam.position
-	
-	main.canvas.add_child(s)
 
 
 
 
-@onready var v = $HBoxContainer/draw_space/edit_3d/SubViewportContainer/SubViewport
-func _on_add_3d_btn_pressed():
-	toggle_3d()
-	items.clear()
-	if d3 && d3.scenes:
-		for s in d3.scenes.keys():
-			items.add_item(s)
 
-
-func toggle_3d():
-	if v.process_mode == Node.PROCESS_MODE_INHERIT:
-		v.process_mode = Node.PROCESS_MODE_DISABLED
-	else:
-		v.process_mode = Node.PROCESS_MODE_INHERIT
-		
-	$HBoxContainer/draw_space/edit_3d.visible = !$HBoxContainer/draw_space/edit_3d.visible
-	$HBoxContainer/tools.visible = !$HBoxContainer/tools.visible
-	$HBoxContainer/tools3d.visible = !$HBoxContainer/tools3d.visible
-	
-	if main.cam.process_mode == Node.PROCESS_MODE_INHERIT:
-		main.cam.process_mode = Node.PROCESS_MODE_DISABLED
-	else:
-		main.cam.process_mode = Node.PROCESS_MODE_INHERIT
-
-func _on_item_list_item_selected(index):
-	d3.set_scene(items.get_item_text(index))
-
-
-func _on_option_button_item_selected(index):
-	d3.set_cam_mode(index)
 
 
 func _on_file_index_pressed(index):

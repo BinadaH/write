@@ -7,6 +7,6 @@ offset_right = 18.0
 offset_bottom = 35.0
 script = ExtResource("1_wwb76")
 
-[node name="content" type="MarginContainer" parent="." unique_id=97912192]
+[node name="content" type="VBoxContainer" parent="." unique_id=2076073703]
 layout_mode = 2
 mouse_filter = 2

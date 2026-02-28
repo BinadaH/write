@@ -18,39 +18,43 @@ func get_world_to_screen_pos(world_pos : Vector2) -> Vector2:
 func parse_text_and_latex(text: String):
 	var segments = []
 	var regex = RegEx.new()
-	# Cattura sia $$...$$ che $...$
 	regex.compile("(?s)(\\$\\$|\\$)(.*?)\\1")
 	
 	var last_index = 0
 	var matches = regex.search_all(text)
 	
 	for m in matches:
-		# 1. Estrai il testo normale PRIMA del blocco LaTeX
-		var text_before = text.substr(last_index, m.get_start() - last_index)
-		if text_before != "":
-			segments.append({
-				"type": "text",
-				"content": text_before
-			})
+		# --- GESTIONE TESTO PRIMA DEL LATEX ---
+		var text_chunk = text.substr(last_index, m.get_start() - last_index)
+		if text_chunk != "":
+			# Dividiamo il testo per ogni \n
+			var sub_parts = text_chunk.split("\n", true)
+			for i in range(sub_parts.size()):
+				if sub_parts[i] != "":
+					segments.append({"type": "text", "content": sub_parts[i]})
+				# Se non è l'ultimo elemento, qui c'era un \n
+				if i < sub_parts.size() - 1:
+					segments.append({"type": "newline"})
 		
-		# 2. Estrai il blocco LaTeX
+		# --- GESTIONE BLOCCO LATEX ---
 		var tag_type = m.get_string(1)
-		var latex_content = m.get_string(2).strip_edges()
+		var content = m.get_string(2).strip_edges()
 		segments.append({
 			"type": "latex",
 			"mode": "display" if tag_type == "$$" else "inline",
-			"content": latex_content
+			"content": content
 		})
 		
-		# Aggiorna l'indice per il prossimo ciclo
 		last_index = m.get_end()
 	
-	# 3. Estrai l'ultimo pezzo di testo dopo l'ultimo match
-	var remaining_text = text.substr(last_index)
-	if remaining_text != "":
-		segments.append({
-			"type": "text",
-			"content": remaining_text
-		})
-		
+	# --- GESTIONE TESTO RIMANENTE ---
+	var final_chunk = text.substr(last_index)
+	if final_chunk != "":
+		var sub_parts = final_chunk.split("\n", true)
+		for i in range(sub_parts.size()):
+			if sub_parts[i] != "":
+				segments.append({"type": "text", "content": sub_parts[i]})
+			if i < sub_parts.size() - 1:
+				segments.append({"type": "newline"})
+				
 	return segments

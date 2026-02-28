@@ -16,7 +16,6 @@
 [ext_resource type="Texture2D" uid="uid://bbelyhmunu3r2" path="res://sprites/redo.png" id="9_md5fq"]
 [ext_resource type="Texture2D" uid="uid://bobhfh7lewrgp" path="res://sprites/copy.png" id="11_ihhco"]
 [ext_resource type="Texture2D" uid="uid://fhqkhr7u7gys" path="res://sprites/paste.png" id="12_glvk3"]
-[ext_resource type="Texture2D" uid="uid://ljvcgnw200ss" path="res://icon.svg" id="17_muem4"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_x6obk"]
 bg_color = Color(0.306923, 0.306923, 0.306923, 1)
@@ -337,10 +336,6 @@ z_index = 2
 
 [node name="file_manager" type="Node" parent="." unique_id=1781527999]
 script = ExtResource("4_u6w2c")
-
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=455426944]
-scale = Vector2(0.25, 0.25)
-texture = ExtResource("17_muem4")
 
 [connection signal="index_pressed" from="CanvasGroup/HBoxContainer/MenuBar2/File" to="." method="_on_file_index_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/save_btn" to="file_manager" method="_on_save_btn_pressed"]

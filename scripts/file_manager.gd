@@ -1,6 +1,5 @@
 extends Node
 
-
 @onready var main : Main = get_parent()
 
 var data_to_save = {
@@ -10,7 +9,8 @@ func _on_save_btn_pressed() -> void:
 	main.clear_selection_status()
 	data_to_save = {
 		"lines": [],
-		"imgs": []
+		"imgs": [],
+		"text": []
 	}
 	for child in main.canvas.get_children():
 		if child is Line2D:
@@ -41,7 +41,12 @@ func _on_save_btn_pressed() -> void:
 				"p": child.position,
 				"t": Marshalls.raw_to_base64(child.texture.get_image().save_png_to_buffer())
 			})
-	
+		elif child.is_in_group("text"):
+			data_to_save["text"].append({
+				"p": child.position,
+				"t": child.text,
+				"f": child.curr_font_size
+			})
 	
 	main.open_file.file_mode = FileDialog.FILE_MODE_SAVE_FILE
 	main.open_file.visible = true
@@ -99,3 +104,15 @@ func _on_open_file_file_selected(path: String) -> void:
 				print(err)
 				r.texture = ImageTexture.create_from_image(im)
 				main.canvas.add_child(r)
+	
+		if data.keys().has("text"):
+			for text in data["text"]:
+				var text_scene = load("res://scenes/text.tscn")
+				var new_text = text_scene.instantiate()
+				var a = text["p"].split(",")
+				var x = a[0].trim_prefix("(")
+				var y = a[1].trim_suffix(")")
+				new_text.position = Vector2(float(x), float(y))
+				new_text.curr_font_size = float(text["f"])
+				main.canvas.add_child(new_text)
+				new_text.render(text["t"])

@@ -89,6 +89,7 @@ func scale(rel : Vector2, proportional : bool):
 						obj.points[i] = k * (obj.points[i] - origin) + origin
 				elif obj && obj.is_in_group("text"):
 					obj.curr_font_size *= k.y if !proportional else k
+					obj.position = k * (obj.position - origin) + origin
 					obj.render(obj.text)
 				elif obj is Control:
 					obj.size *= k

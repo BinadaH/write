@@ -2,6 +2,18 @@ extends Node
 
 @onready var main : Main = get_parent()
 var current_canvas_data = {}
+var current_path = ""
+@export var current_file_path_label : Label
+@export var current_file_path_label_animations : AnimationPlayer
+func _ready():
+	if !current_file_path_label:
+		push_error("current_file_path_label Not Set")
+		
+func new_file():
+	current_path = ""
+	current_canvas_data = {}
+	current_file_path_label.text = "new file"
+	
 
 func _on_save_btn_pressed() -> void:
 	main.clear_selection_status()
@@ -37,22 +49,39 @@ func _on_save_btn_pressed() -> void:
 			data["text"].append({
 				"p": child.position,
 				"t": child.text,
-				"f": child.curr_font_size
+				"f": child.curr_font_size,
+				"col": child.curr_color
 			})
 
 	main.open_file.file_mode = FileDialog.FILE_MODE_SAVE_FILE
-	main.open_file.visible = true
 	current_canvas_data = data
+	if current_path:
+		save_canvas_data(current_path)
+	else:
+		main.open_file.visible = true
 
 func _on_open_file_file_selected(path: String) -> void:
+	current_path = path
+	var file_name = path.get_file()
+	var dir_name = path.get_base_dir().get_file()
+	current_file_path_label.text = dir_name + "/" + file_name
+	
 	if main.open_file.file_mode == FileDialog.FILE_MODE_SAVE_FILE:
-		var f = FileAccess.open(path, FileAccess.WRITE)
-		if f:
-			f.store_var(current_canvas_data, true) # Serializzazione binaria completa
-			f.close()
+		save_canvas_data(path)
 	else:
 		_load_canvas(path)
-
+	
+func save_canvas_data(path):
+	var f = FileAccess.open(path, FileAccess.WRITE)
+	var success = false
+	if f:
+		success = f.store_var(current_canvas_data, true) # Serializzazione binaria completa
+		f.close()
+	if success:
+		current_file_path_label_animations.play("saved_success")
+	else:
+		current_file_path_label_animations.play("saved_failed")
+		
 func _load_canvas(path: String) -> void:
 	var f = FileAccess.open(path, FileAccess.READ)
 	if !f: return
@@ -95,3 +124,7 @@ func _load_canvas(path: String) -> void:
 		new_text.curr_font_size = txt["f"]
 		main.canvas.add_child(new_text)
 		new_text.render(txt["t"])
+		if txt.has("col"):
+			new_text.curr_color = txt["col"]
+			new_text.modulate = new_text.curr_color
+		

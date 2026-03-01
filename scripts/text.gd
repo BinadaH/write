@@ -5,6 +5,7 @@ var text = ""
 @export var min_height = 50
 @export var max_height = 500
 @export var curr_font_size = 20
+@export var curr_color = Color.WHITE
 var text_edit: TextEdit = null
 
 var highlighter = CodeHighlighter.new()
@@ -36,6 +37,7 @@ func _ready():
 		
 		text_edit.connect("focus_exited", Callable(self, "_on_text_edit_focus_exited"))
 		text_edit.connect("gui_input", Callable(self, "_on_text_edit_gui_input"))
+		text_edit.connect("focus_entered", Callable(self, "_on_text_edit_focus_entered"))
 		setup_highlighter()
 	else:
 		push_error("Didn't find canvas_layer")
@@ -93,8 +95,9 @@ func render(text: String):
 					new_s.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 					
 					new_s.texture = ret
-					$content.add_child(line)
-					line = HBoxContainer.new()
+					if line.get_child_count() > 0:
+						$content.add_child(line)
+						line = HBoxContainer.new()
 					line.alignment = BoxContainer.ALIGNMENT_CENTER
 					line.add_child(new_s)
 					$content.add_child(line)
@@ -104,7 +107,8 @@ func render(text: String):
 			$content.add_child(line)
 			line = HBoxContainer.new()
 	
-	$content.add_child(line)
+	if line.get_child_count() > 0:
+		$content.add_child(line)
 
 	size.y = 0
 	size.x = 0
@@ -118,6 +122,9 @@ func edit_text():
 func _on_text_edit_focus_exited():
 	text_edit.visible = false
 	render(text_edit.text)
+
+func _on_text_edit_focus_entered():
+	text_edit.text = text
 
 func _on_text_edit_gui_input(event):
 	if event is InputEventKey:

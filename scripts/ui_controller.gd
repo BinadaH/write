@@ -43,7 +43,15 @@ func change_col(index):
 	main.color_selector.color = main.editor_data.current_col 
 	last_quick_col = index
 	
-	if main.editor_data.current_tool != main.editor_data.TOOLS.PEN and main.editor_data.current_tool != main.editor_data.TOOLS.LINE:
+	if main.selection_made:
+		for obj in main.selection_made.objs:
+			if obj is Line2D:
+				obj.default_color = main.editor_data.current_col
+			elif obj.is_in_group("text"):
+				obj.curr_color = main.editor_data.current_col
+				obj.modulate = obj.curr_color
+				
+	if main.editor_data.current_tool != main.editor_data.TOOLS.SELECT && main.editor_data.current_tool != main.editor_data.TOOLS.PEN and main.editor_data.current_tool != main.editor_data.TOOLS.LINE:
 		main.editor_data.change_tool(main.editor_data.TOOLS.PEN, main.del_btn)
 		
 	
@@ -70,6 +78,9 @@ func _on_new_btn_pressed():
 	main.cam.zoom = 1
 	main.waction_manager.wactions.clear()
 	main.clear_canvas()
+	
+	main.file_manager.new_file()
+	
 	
 	
 @onready var open_file = $open_file

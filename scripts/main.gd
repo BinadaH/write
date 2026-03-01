@@ -4,10 +4,12 @@ class_name Main
 var draw_line_logic : DrawLine
 var editor_data : EditorData
 var waction_manager : WActionManager
+@onready var file_manager = $file_manager
 
 @onready var open_file = $CanvasGroup/open_file
 @onready var color_selector = $CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools/color_selector
 func _ready() -> void:
+	get_tree().root.content_scale_factor = 1.2
 	EditorFuncs.set_main(self)
 	
 	editor_data = EditorData.new(self)
@@ -280,13 +282,12 @@ func _on_file_index_pressed(index):
 func _on_line_btn_pressed():
 	editor_data.change_tool(editor_data.TOOLS.LINE, del_btn)
 
-
-func get_object_rect(obj) -> Rect2:
-	if obj:
-		var r = obj._edit_get_rect()
-		r.position += obj.position
-		return r
-	return Rect2()
+#func get_object_rect(obj) -> Rect2:
+	#if obj:
+		#var r = obj._edit_get_rect()
+		#r.position += obj.position
+		#return r
+	#return Rect2()
 	
 func get_objects_rect(objs : Array) -> Rect2:
 	var new_rect = null
@@ -296,14 +297,53 @@ func get_objects_rect(objs : Array) -> Rect2:
 		
 	return new_rect
 	
+func get_object_rect(obj) -> Rect2:
+	if !obj: return Rect2()
+	
+	var r = Rect2()
+	
+	if obj is Line2D:
+		if obj.points.size() > 0:
+			# Creiamo un rettangolo che parte dal primo punto
+			r = Rect2(obj.points[0], Vector2.ZERO)
+			# Espandiamo il rettangolo per includere tutti gli altri punti
+			# .expand() è un metodo super ottimizzato del motore
+			for p in obj.points:
+				r = r.expand(p)
+			
+			# Aggiungiamo lo spessore della linea
+			r = r.grow(obj.width / 2.0)
+			# Applichiamo la posizione dell'oggetto
+			r.position += obj.position
+			
+	elif obj is Control:
+		# I nodi Control (UI) hanno già il calcolo dei bounds a runtime
+		r = obj.get_global_rect()
+		
+	elif obj is Sprite2D:
+		if obj.texture:
+			var s = obj.texture.get_size() * obj.scale
+			# Se lo sprite è centrato (default), il rettangolo parte da -metà dimensione
+			r = Rect2(-s/2, s)
+			r.position += obj.position
+			
+	# .abs() corregge eventuali dimensioni negative (fondamentale per Rect2)
+	return r.abs()
+		
 var copied_pos = Vector2()
 var copied_items = []
 func handle_copy():
-	if selection_made:
-		copied_items = selection_made.objs.duplicate()
-		DisplayServer.clipboard_set("")
+	copied_items.clear()
+	if selection_made && selection_made.objs.size() > 0:
+		for obj in selection_made.objs:
+			var dupli = obj.duplicate()
+			if dupli.is_in_group("text"):
+				dupli.text = obj.text
+				dupli.curr_font_size = obj.curr_font_size
+			copied_items.append(dupli)
+			
 		copied_pos = selection_made.points[0]
-	#print(copied_items)	
+	DisplayServer.clipboard_set("")
 
 func handle_paste(on_mouse = true):
 	var wac = WAaction.new()
@@ -322,6 +362,8 @@ func handle_paste(on_mouse = true):
 		var new_data = []
 		for c in copied_items:
 			var cd = c.duplicate()
+			if cd.is_in_group("text"):
+				cd.text = c.text
 			canvas.add_child(cd)
 			new_data.append(cd)
 		var r = get_objects_rect(new_data)

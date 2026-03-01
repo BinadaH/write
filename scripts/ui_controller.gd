@@ -20,7 +20,7 @@ func _ready():
 	
 	var i = 0
 	for ch in quick_cols:
-		ch.connect("pressed", cl.bind(i))
+		ch.connect("button_up", cl.bind(i))
 		var s = StyleBoxFlat.new()
 		s.bg_color = color_palette[i]
 		var s2 : StyleBoxFlat = s.duplicate()
@@ -51,7 +51,7 @@ func change_col(index):
 				obj.curr_color = main.editor_data.current_col
 				obj.modulate = obj.curr_color
 				
-	if main.editor_data.current_tool != main.editor_data.TOOLS.SELECT && main.editor_data.current_tool != main.editor_data.TOOLS.PEN and main.editor_data.current_tool != main.editor_data.TOOLS.LINE:
+	if main.editor_data.current_tool != main.editor_data.TOOLS.TEXT and main.editor_data.current_tool != main.editor_data.TOOLS.SELECT && main.editor_data.current_tool != main.editor_data.TOOLS.PEN and main.editor_data.current_tool != main.editor_data.TOOLS.LINE:
 		main.editor_data.change_tool(main.editor_data.TOOLS.PEN, main.del_btn)
 		
 	

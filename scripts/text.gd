@@ -33,6 +33,7 @@ func _ready():
 		text_edit.scroll_fit_content_height = true
 		text_edit.scroll_fit_content_width = true
 		
+		
 		text_edit.set_meta("target_text", self)
 		
 		text_edit.connect("focus_exited", Callable(self, "_on_text_edit_focus_exited"))
@@ -115,6 +116,7 @@ func render(text: String):
 	update_minimum_size()
 			
 func edit_text():
+	text_edit.add_theme_color_override("font_color", curr_color)
 	$content.visible = false
 	text_edit.grab_focus()
 	text_edit.visible = true

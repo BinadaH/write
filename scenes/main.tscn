@@ -280,29 +280,35 @@ keep_pressed_outside = true
 [node name="VSeparator3" type="VSeparator" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer" unique_id=54273051]
 layout_mode = 2
 
-[node name="Panel" type="Panel" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer" unique_id=957303735]
+[node name="pen_tools" type="HBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer" unique_id=490449903]
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.3
 
-[node name="pen_tools" type="HBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel" unique_id=490449903]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="color_selector" type="ColorPickerButton" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools" unique_id=943841205]
+[node name="color_selector" type="ColorPickerButton" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/pen_tools" unique_id=943841205]
 layout_mode = 2
 text = "col"
 
-[node name="pen_size" type="VSlider" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools" unique_id=896719569]
+[node name="pen_size" type="VSlider" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/pen_tools" unique_id=896719569]
 layout_mode = 2
 min_value = 0.5
 max_value = 50.0
 step = 10.0
-value = 30.0
+value = 30.5
+
+[node name="text_size" type="HBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/pen_tools" unique_id=376775132]
+visible = false
+layout_mode = 2
+
+[node name="0" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/pen_tools/text_size" unique_id=1410090831]
+layout_mode = 2
+text = "0"
+
+[node name="1" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/pen_tools/text_size" unique_id=1320719982]
+layout_mode = 2
+text = "1"
+
+[node name="2" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/pen_tools/text_size" unique_id=1700901989]
+layout_mode = 2
+text = "2"
 
 [node name="Control" type="Control" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer" unique_id=1993991913]
 layout_mode = 2
@@ -311,7 +317,7 @@ size_flags_horizontal = 3
 [node name="current_file_path" type="Label" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer" unique_id=1249789478]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 3.0
+size_flags_stretch_ratio = 2.0
 text = "new file"
 horizontal_alignment = 2
 text_overrun_behavior = 3
@@ -405,8 +411,8 @@ libraries/ = SubResource("AnimationLibrary_0ld40")
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/redo_btn" to="CanvasGroup" method="_on_redo_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/copy_btn" to="CanvasGroup" method="_on_copy_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer/paste_btn" to="CanvasGroup" method="_on_paste_btn_pressed"]
-[connection signal="color_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools/color_selector" to="." method="_on_color_picker_button_color_changed"]
-[connection signal="value_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools/pen_size" to="." method="_on_h_slider_value_changed"]
+[connection signal="color_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/pen_tools/color_selector" to="." method="_on_color_picker_button_color_changed"]
+[connection signal="value_changed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/pen_tools/pen_size" to="." method="_on_h_slider_value_changed"]
 [connection signal="draw" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_draw"]
 [connection signal="mouse_entered" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_mouse_entered"]
 [connection signal="mouse_exited" from="CanvasGroup/HBoxContainer/draw_space" to="CanvasGroup" method="_on_draw_space_mouse_exited"]

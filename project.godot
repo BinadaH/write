@@ -33,6 +33,10 @@ window/vsync/vsync_mode=0
 
 project/assembly_name="Write"
 
+[gui]
+
+theme/custom="uid://nhnxv00dieej"
+
 [importer_defaults]
 
 texture={

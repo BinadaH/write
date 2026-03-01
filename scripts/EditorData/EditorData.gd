@@ -7,7 +7,7 @@ var mouse_down = false
 var press = 0
 
 var ctrl_pressed = false
-
+var curr_text_size = 0
 
 
 var mouse_rel = Vector2.ZERO
@@ -68,11 +68,13 @@ func handle_mouse_button(event : InputEventMouseButton):
 				if (curr_focus && !curr_focus.get_parent().is_in_group("text")) || !curr_focus:
 					var new_t_s = load("res://scenes/text.tscn")
 					var new_t = new_t_s.instantiate()
-					main.canvas.add_child(new_t)
 					new_t.position = world_pos
+					new_t.position.y -= curr_text_size / 2
+					new_t.curr_font_size = curr_text_size
+					new_t.curr_color = main.editor_data.current_col
+					new_t.modulate = new_t.curr_color
+					main.canvas.add_child(new_t)
 					new_t.edit_text()
-					new_t.curr_font_size = main.draw_line_logic.current_size
-					
 					var wac = WAaction.new()
 					wac.set_action_add_text(new_t, main.canvas)
 					main.waction_manager.add_waction(wac)
@@ -104,16 +106,34 @@ func handle_key(event):
 
 func change_tool(tool : TOOLS, del_btn):
 	main.clear_selection_status()
+		
+	if tool == TOOLS.TEXT:
+		main.text_size_selector.visible = true
+		main.pen_size_selector.visible = false
+	else:
+		main.text_size_selector.visible = false
+		main.pen_size_selector.visible = true
+	
 	if tool == TOOLS.SELECT:
+		main.text_size_selector.visible = true
+		main.pen_size_selector.visible = true
 		del_btn.disabled = false
 	else:
 		del_btn.disabled = true
-		
+	
 	current_tool = tool
 
+func set_text_size(size):
+	curr_text_size = size
+	if main.selection_made:
+		for obj in main.selection_made.objs:
+			if obj.is_in_group("text"):
+				obj.curr_font_size = curr_text_size
+				obj.render(obj.text)
+				
 func process():
 	var curr_focused = main.get_viewport().gui_get_focus_owner()
-	if curr_focused and curr_focused.is_in_group("text_edit"):
+	if curr_focused and !curr_focused.is_queued_for_deletion() and curr_focused.is_in_group("text_edit"):
 		var text_edit = curr_focused
 		var target = text_edit.get_meta("target_text")
 		text_edit.position = EditorFuncs.get_world_to_screen_pos(target.position)

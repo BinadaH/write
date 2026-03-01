@@ -10,6 +10,8 @@ func _ready():
 		push_error("current_file_path_label Not Set")
 		
 func new_file():
+	if main.get_viewport().gui_get_focus_owner():
+		main.get_viewport().gui_get_focus_owner().release_focus()
 	current_path = ""
 	current_canvas_data = {}
 	current_file_path_label.text = "new file"
@@ -61,6 +63,8 @@ func _on_save_btn_pressed() -> void:
 		main.open_file.visible = true
 
 func _on_open_file_file_selected(path: String) -> void:
+	if main.get_viewport().gui_get_focus_owner():
+		main.get_viewport().gui_get_focus_owner().release_focus()
 	current_path = path
 	var file_name = path.get_file()
 	var dir_name = path.get_base_dir().get_file()

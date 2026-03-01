@@ -4,10 +4,14 @@ class_name Main
 var draw_line_logic : DrawLine
 var editor_data : EditorData
 var waction_manager : WActionManager
+
+@onready var text_size_selector = $CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/pen_tools/text_size
+@onready var pen_size_selector = $CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/pen_tools/pen_size
+
 @onready var file_manager = $file_manager
 
 @onready var open_file = $CanvasGroup/open_file
-@onready var color_selector = $CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools/color_selector
+@onready var color_selector = $CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/pen_tools/color_selector
 func _ready() -> void:
 	Input.set_custom_mouse_cursor(load("res://sprites/custom_cursor.png"))
 	get_tree().root.content_scale_factor = 1.2
@@ -23,7 +27,19 @@ func _ready() -> void:
 	OS.low_processor_usage_mode = true
 	
 	draw_line_logic = DrawLine.new($Line2D, self, canvas)
-	$CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools/pen_size.value = draw_line_logic.current_size
+	$CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/pen_tools/pen_size.value = draw_line_logic.current_size
+
+	var cl = Callable(editor_data, "set_text_size")
+	var text_cl = text_size_selector.get_children()
+	var sizes = [
+		background.SQUARE_SIZE * 2,
+		background.SQUARE_SIZE,
+		background.SQUARE_SIZE * 0.5
+	]
+	for child_i in range(text_cl.size()):
+		text_cl[child_i].connect("pressed", cl.bind(sizes[child_i]))
+
+	editor_data.curr_text_size = sizes[1]
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:

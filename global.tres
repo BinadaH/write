@@ -1,0 +1,8 @@
+[gd_resource type="Theme" format=3 uid="uid://nhnxv00dieej"]
+
+[ext_resource type="FontFile" uid="uid://c08wfnepvele2" path="res://fonts/JetBrainsMono-Bold.ttf" id="1_r1ui4"]
+[ext_resource type="FontFile" uid="uid://cqnv8besddrdv" path="res://fonts/JetBrainsMono-Regular.ttf" id="2_u5ahv"]
+
+[resource]
+default_font = ExtResource("2_u5ahv")
+RichTextLabel/fonts/bold_font = ExtResource("1_r1ui4")

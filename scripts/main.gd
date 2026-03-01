@@ -14,6 +14,8 @@ var waction_manager : WActionManager
 @onready var color_selector = $CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/pen_tools/color_selector
 func _ready() -> void:
 	Input.set_custom_mouse_cursor(load("res://sprites/custom_cursor.png"))
+	Input.use_accumulated_input = false
+	
 	get_tree().root.content_scale_factor = 1.2
 	EditorFuncs.set_main(self)
 	

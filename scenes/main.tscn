@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://cvfygoqgji3so" path="res://scripts/background.gd" id="4_scug2"]
 [ext_resource type="Script" uid="uid://cf68q3lrbm4sj" path="res://scripts/file_manager.gd" id="4_u6w2c"]
 [ext_resource type="Texture2D" uid="uid://bdyotc2mywy44" path="res://sprites/select.png" id="5_k3b4j"]
+[ext_resource type="Texture2D" uid="uid://c7u2jhak333iv" path="res://sprites/text.png" id="5_muem4"]
 [ext_resource type="Texture2D" uid="uid://cj07gqt44jcwy" path="res://sprites/delete.png" id="6_e1ynx"]
 [ext_resource type="Texture2D" uid="uid://butlctp22c1vl" path="res://sprites/line.png" id="6_qdwoi"]
 [ext_resource type="Texture2D" uid="uid://c36b4c1k5hsby" path="res://sprites/spacer.png" id="7_si75d"]
@@ -17,10 +18,8 @@
 [ext_resource type="Texture2D" uid="uid://bobhfh7lewrgp" path="res://sprites/copy.png" id="11_ihhco"]
 [ext_resource type="Texture2D" uid="uid://fhqkhr7u7gys" path="res://sprites/paste.png" id="12_glvk3"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_x6obk"]
-bg_color = Color(0.306923, 0.306923, 0.306923, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qtu3f"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jbj1t"]
+bg_color = Color(0.24840015, 0.24840018, 0.24840012, 1)
 
 [node name="Main" type="Node2D" unique_id=322738978]
 script = ExtResource("1_brwaw")
@@ -53,32 +52,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MenuBar2" type="MenuBar" parent="CanvasGroup/HBoxContainer" unique_id=1373324385]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="Panel" type="Panel" parent="CanvasGroup/HBoxContainer/MenuBar2" unique_id=1019703668]
-z_index = -1
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_x6obk")
-
-[node name="File" type="PopupMenu" parent="CanvasGroup/HBoxContainer/MenuBar2" unique_id=1262946247]
-mode = 3
-title = "File"
-item_count = 3
-item_0/text = "Save"
-item_0/id = 0
-item_1/text = "Open"
-item_1/id = 1
-item_2/text = "New"
-item_2/id = 2
-
 [node name="tools" type="Control" parent="CanvasGroup/HBoxContainer" unique_id=1171953905]
 z_index = 1
 custom_minimum_size = Vector2(0, 35)
@@ -93,7 +66,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_qtu3f")
+theme_override_styles/panel = SubResource("StyleBoxFlat_jbj1t")
 
 [node name="VBoxContainer" type="HBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel" unique_id=257975150]
 layout_mode = 1
@@ -102,6 +75,21 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="MenuBar2" type="MenuBar" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer" unique_id=1373324385]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="File" type="PopupMenu" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/MenuBar2" unique_id=1262946247]
+mode = 3
+title = "File"
+item_count = 3
+item_0/text = "Save"
+item_0/id = 0
+item_1/text = "Open"
+item_1/id = 1
+item_2/text = "New"
+item_2/id = 2
 
 [node name="save_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer" unique_id=1102700837]
 visible = false
@@ -120,59 +108,44 @@ text = "New"
 
 [node name="GridContainer" type="HBoxContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer" unique_id=1481243775]
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.0
 
 [node name="pen_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer" unique_id=1184098445]
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
 icon = ExtResource("3_75adb")
-icon_alignment = 1
-expand_icon = true
 
 [node name="line_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer" unique_id=1508885626]
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_vertical = 3
 icon = ExtResource("6_qdwoi")
-icon_alignment = 1
-expand_icon = true
 
 [node name="text_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer" unique_id=1323824798]
 layout_mode = 2
-text = "T"
+icon = ExtResource("5_muem4")
 
 [node name="hand_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer" unique_id=520758157]
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_vertical = 3
 icon = ExtResource("4_kpeg8")
 icon_alignment = 1
-expand_icon = true
 
 [node name="select_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer" unique_id=1337849626]
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_vertical = 3
 icon = ExtResource("5_k3b4j")
 icon_alignment = 1
-expand_icon = true
 
 [node name="spacer_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer" unique_id=1479848994]
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_vertical = 3
 icon = ExtResource("7_si75d")
 icon_alignment = 1
-expand_icon = true
 
 [node name="VSeparator" type="VSeparator" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer" unique_id=1434556606]
 layout_mode = 2
 
 [node name="del_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer" unique_id=39692467]
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_vertical = 3
 disabled = true
 icon = ExtResource("6_e1ynx")
@@ -180,25 +153,21 @@ icon_alignment = 1
 
 [node name="undo_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer" unique_id=1295506784]
 layout_mode = 2
-size_flags_horizontal = 3
 icon = ExtResource("8_721ub")
 icon_alignment = 1
 
 [node name="redo_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer" unique_id=994425620]
 layout_mode = 2
-size_flags_horizontal = 3
 icon = ExtResource("9_md5fq")
 icon_alignment = 1
 
 [node name="copy_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer" unique_id=570961513]
 layout_mode = 2
-size_flags_horizontal = 3
 icon = ExtResource("11_ihhco")
 icon_alignment = 1
 
 [node name="paste_btn" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/GridContainer" unique_id=1556915863]
 layout_mode = 2
-size_flags_horizontal = 3
 icon = ExtResource("12_glvk3")
 icon_alignment = 1
 
@@ -208,8 +177,8 @@ layout_mode = 2
 [node name="quick_cols" type="GridContainer" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer" unique_id=1892927306]
 custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
-theme_override_constants/h_separation = 0
-theme_override_constants/v_separation = 0
+theme_override_constants/h_separation = 2
+theme_override_constants/v_separation = 2
 columns = 3
 
 [node name="0" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/quick_cols" unique_id=569930420]
@@ -265,9 +234,9 @@ text = "col"
 [node name="pen_size" type="VSlider" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools" unique_id=896719569]
 layout_mode = 2
 min_value = 0.5
-max_value = 20.0
+max_value = 50.0
 step = 0.5
-value = 0.5
+value = 30.0
 
 [node name="Control" type="Control" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer" unique_id=1993991913]
 layout_mode = 2
@@ -307,10 +276,10 @@ custom_minimum_size = Vector2(0, 250)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 3
-min_value = 0.5
+min_value = 0.15
 max_value = 1.0
 step = 0.1
-value = 0.6
+value = 0.55
 
 [node name="open_file" type="FileDialog" parent="CanvasGroup" unique_id=717648303]
 title = "Open a File"
@@ -337,7 +306,7 @@ z_index = 2
 [node name="file_manager" type="Node" parent="." unique_id=1781527999]
 script = ExtResource("4_u6w2c")
 
-[connection signal="index_pressed" from="CanvasGroup/HBoxContainer/MenuBar2/File" to="." method="_on_file_index_pressed"]
+[connection signal="index_pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/MenuBar2/File" to="." method="_on_file_index_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/save_btn" to="file_manager" method="_on_save_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/open_btn" to="CanvasGroup" method="_on_open_btn_pressed"]
 [connection signal="pressed" from="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/new_btn" to="CanvasGroup" method="_on_new_btn_pressed"]

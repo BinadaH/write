@@ -5,7 +5,7 @@ var text = ""
 @export var min_height = 50
 @export var max_height = 500
 @export var curr_font_size = 20
-var text_edit = null
+var text_edit: TextEdit = null
 
 var highlighter = CodeHighlighter.new()
 
@@ -40,18 +40,39 @@ func _ready():
 	else:
 		push_error("Didn't find canvas_layer")
 
+func markdown_to_bbcode(markdown_text: String) -> String:
+	var regex = RegEx.new()
+	# Cerca pattern tipo **qualcosa**
+	# Il pattern \*\*(.*?)\*\* cattura tutto ciò che sta tra i doppi asterischi
+	regex.compile("\\*\\*(.*?)\\*\\*")
+	
+	# Sostituisce **testo** con [b]testo[/b]
+	var result = regex.sub(markdown_text, "[b]$1[/b]", true)
+	return result
+
 func render(text: String):
 	if text == "":
 		text_edit.queue_free()
 		queue_free()
 		return
+	
+	$content.visible = true
+	for child in $content.get_children():
+		$content.remove_child(child)
+	
 	self.text = text
+	text = markdown_to_bbcode(text)
 	var parsed_data = EditorFuncs.parse_text_and_latex(text)
 	var line = HBoxContainer.new()
 	for data in parsed_data:
 		if data.type == "text" :
-			var new_l = Label.new()
-			new_l.add_theme_font_size_override("font_size", curr_font_size)
+			var new_l = RichTextLabel.new()
+			new_l.autowrap_mode = TextServer.AUTOWRAP_OFF
+			new_l.fit_content = true
+			new_l.bbcode_enabled = true
+			new_l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+			new_l.add_theme_font_size_override("normal_font_size", curr_font_size)
+			new_l.add_theme_font_size_override("bold_font_size", curr_font_size)
 			new_l.text = data.content
 			line.add_child(new_l)
 		elif data.type == "latex":
@@ -74,6 +95,7 @@ func render(text: String):
 					new_s.texture = ret
 					$content.add_child(line)
 					line = HBoxContainer.new()
+					line.alignment = BoxContainer.ALIGNMENT_CENTER
 					line.add_child(new_s)
 					$content.add_child(line)
 					line = HBoxContainer.new()
@@ -83,10 +105,13 @@ func render(text: String):
 			line = HBoxContainer.new()
 	
 	$content.add_child(line)
+
+	size.y = 0
+	size.x = 0
+	update_minimum_size()
 			
 func edit_text():
-	for child in $content.get_children():
-		$content.remove_child(child)
+	$content.visible = false
 	text_edit.grab_focus()
 	text_edit.visible = true
 	
@@ -107,5 +132,14 @@ func _on_text_edit_gui_input(event):
 
 			elif event.keycode == KEY_ENTER:
 				text_edit.release_focus()
+			elif event.keycode == KEY_B:
+				var selected_text = text_edit.get_selected_text()
+				if selected_text != "":
+					# 2. Creiamo la nuova stringa
+					var new_text = "**" + selected_text + "**"
+					# 3. Inseriamo il testo (sostituisce la selezione attuale)
+					text_edit.insert_text_at_caret(new_text)
+					# Opzionale: consuma l'evento per evitare che 'b' venga scritto
+					get_viewport().set_input_as_handled()
 		if event.pressed && event.keycode == KEY_ESCAPE:
 			text_edit.release_focus()

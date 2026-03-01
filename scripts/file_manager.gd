@@ -1,118 +1,97 @@
 extends Node
 
 @onready var main : Main = get_parent()
+var current_canvas_data = {}
 
-var data_to_save = {
-		"lines": []
-}
 func _on_save_btn_pressed() -> void:
 	main.clear_selection_status()
-	data_to_save = {
+	
+	var data = {
 		"lines": [],
 		"imgs": [],
 		"text": []
 	}
+
 	for child in main.canvas.get_children():
-		if child is Line2D:
-			if !child.width_curve:
-				continue
+		if child is Line2D and child.width_curve:
 			var press_points = []
 			for i in child.width_curve.point_count:
-				press_points.append(child.width_curve.get_point_position(i)[1])
-			var points = Array(child.points)
-			for p in range(points.size()):
-				points[p] += child.position
+				# Corretto: prendiamo la coordinata Y del punto della curva
+				press_points.append(child.width_curve.get_point_position(i).y)
 			
-			data_to_save["lines"].append(
-				{
-					"points": points,
-					"press":press_points,
-					"col": [
-						child.default_color.r,
-						child.default_color.g,
-						child.default_color.b,
-						child.default_color.a
-					],
-					"width": child.width
-				}
-			) 
-		elif child is TextureRect:
-			data_to_save["imgs"].append({
-				"p": child.position,
-				"t": Marshalls.raw_to_base64(child.texture.get_image().save_png_to_buffer())
+			data["lines"].append({
+				"points": child.points,     # Salvato come Array[Vector2] nativo
+				"pos": child.position,
+				"press": press_points,
+				"col": child.default_color, # Salvato come Color nativo
+				"width": child.width
 			})
+			
+		elif child is TextureRect:
+			data["imgs"].append({
+				"p": child.position,
+				"t": child.texture.get_image().save_png_to_buffer() # Buffer RAW, no Base64
+			})
+			
 		elif child.is_in_group("text"):
-			data_to_save["text"].append({
+			data["text"].append({
 				"p": child.position,
 				"t": child.text,
 				"f": child.curr_font_size
 			})
-	
+
 	main.open_file.file_mode = FileDialog.FILE_MODE_SAVE_FILE
 	main.open_file.visible = true
-	data_to_save = JSON.stringify(data_to_save)
-
-	
-
-
+	current_canvas_data = data
 
 func _on_open_file_file_selected(path: String) -> void:
-	main.clear_selection_status()
-	main.waction_manager.wactions.clear()
 	if main.open_file.file_mode == FileDialog.FILE_MODE_SAVE_FILE:
 		var f = FileAccess.open(path, FileAccess.WRITE)
-		f.store_string(data_to_save)
-		f.close()
+		if f:
+			f.store_var(current_canvas_data, true) # Serializzazione binaria completa
+			f.close()
 	else:
-		main.clear_canvas()
-		main.open_file.visible = false
-		
-		var f = FileAccess.open(path, FileAccess.READ)
-		var str = f.get_as_text()
-		f.close()
-		
-		var data = JSON.parse_string(str)
-		for l in data["lines"]:
-			var l_d = main.draw_line_logic.base_line.duplicate()
-			main.canvas.add_child(l_d)
-			l_d.width_curve = Curve.new()
-			for p in l["points"]:
-				var a = p.split(",")
-				var x = a[0].trim_prefix("(")
-				var y = a[1].trim_suffix(")")
-				var c = Vector2(float(x), float(y))
-				l_d.add_point(c)
-				
-			var dx = 1/float(l["points"].size())
-			var d = 0
-			for p in l["press"]:
-				l_d.width_curve.add_point(Vector2(dx * d * l["points"].size() / l["press"].size(), p))
-				d += 1
-			
-			l_d.default_color = Color(l["col"][0], l["col"][1], l["col"][2], l["col"][3])
-			l_d.width = l["width"]
+		_load_canvas(path)
+
+func _load_canvas(path: String) -> void:
+	var f = FileAccess.open(path, FileAccess.READ)
+	if !f: return
+	var data = f.get_var(true) # Carica il dizionario con i tipi originali
+	f.close()
 	
-		if data.keys().has("imgs"):
-			for img in data["imgs"]:
-				var r = TextureRect.new()
-				var a = img["p"].split(",")
-				var x = a[0].trim_prefix("(")
-				var y = a[1].trim_suffix(")")
-				r.position = Vector2(float(x), float(y))
-				var im = Image.new()
-				var err = im.load_png_from_buffer(Marshalls.base64_to_raw(img["t"]))
-				print(err)
-				r.texture = ImageTexture.create_from_image(im)
-				main.canvas.add_child(r)
+	main.clear_selection_status()
+	main.clear_canvas()
+	main.open_file.visible = false
 	
-		if data.keys().has("text"):
-			for text in data["text"]:
-				var text_scene = load("res://scenes/text.tscn")
-				var new_text = text_scene.instantiate()
-				var a = text["p"].split(",")
-				var x = a[0].trim_prefix("(")
-				var y = a[1].trim_suffix(")")
-				new_text.position = Vector2(float(x), float(y))
-				new_text.curr_font_size = float(text["f"])
-				main.canvas.add_child(new_text)
-				new_text.render(text["t"])
+	# Ricostruzione Linee
+	for l in data.get("lines", []):
+		var l_d = main.draw_line_logic.base_line.duplicate()
+		main.canvas.add_child(l_d)
+		l_d.position = l["pos"]
+		l_d.points = l["points"] 
+		l_d.default_color = l["col"]
+		l_d.width = l["width"]
+		
+		l_d.width_curve = Curve.new()
+		var p_count = l["press"].size()
+		for i in range(p_count):
+			var x_pos = float(i) / max(1, p_count - 1)
+			l_d.width_curve.add_point(Vector2(x_pos, l["press"][i]))
+
+	# Ricostruzione Immagini (Latex o altro)
+	for img in data.get("imgs", []):
+		var r = TextureRect.new()
+		r.position = img["p"]
+		var im = Image.new()
+		im.load_png_from_buffer(img["t"])
+		r.texture = ImageTexture.create_from_image(im)
+		main.canvas.add_child(r)
+
+	# Ricostruzione Testi
+	var text_scene = load("res://scenes/text.tscn")
+	for txt in data.get("text", []):
+		var new_text = text_scene.instantiate()
+		new_text.position = txt["p"]
+		new_text.curr_font_size = txt["f"]
+		main.canvas.add_child(new_text)
+		new_text.render(txt["t"])

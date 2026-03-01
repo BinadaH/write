@@ -9,7 +9,6 @@ var waction_manager : WActionManager
 @onready var color_selector = $CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools/color_selector
 func _ready() -> void:
 	EditorFuncs.set_main(self)
-	$CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools/pen_size.value = 1
 	
 	editor_data = EditorData.new(self)
 	waction_manager = WActionManager.new()
@@ -21,6 +20,7 @@ func _ready() -> void:
 	OS.low_processor_usage_mode = true
 	
 	draw_line_logic = DrawLine.new($Line2D, self, canvas)
+	$CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools/pen_size.value = draw_line_logic.current_size
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
@@ -85,50 +85,99 @@ var selection_made : ShapeBounds
 var selection_waction : WAaction
 var selection_moving = false
 func update_selection():
+	# CASO A: Non c'è ancora una selezione attiva (Siamo in modalità "Cerca/Disegna Rettangolo")
 	if !selection_made:
 		if editor_data.mouse_down:
-			if selection_rect:
-				selection_rect.end = editor_data.world_pos
+			if !selection_rect:
+				# Inizio del rettangolo
+				selection_rect = Rect2(editor_data.world_pos, Vector2.ZERO)
 			else:
-				selection_rect = Rect2()
-				selection_rect.position = editor_data.world_pos
+				# Aggiornamento del rettangolo (usiamo .abs() per gestire trascinamenti in ogni direzione)
+				var start_pos = selection_rect.position
+				selection_rect = Rect2(start_pos, editor_data.world_pos - start_pos)
 		else:
-			if selection_rect:
-				var new_rect = null
-				var objs = []
-				var selection_waction = WAaction.new()
-				for c in canvas.get_children():
-					var r = get_object_rect(c)
-					if selection_rect.abs().encloses(r):
-						new_rect = new_rect.merge(r) if new_rect else r
-						objs.append(c)
-						
-				if new_rect && new_rect.size:
-					selection_made = ShapeBounds.new(new_rect)
-					selection_made.set_objs(objs)
-					selection_waction.set_action_reset_scale(objs)
-					waction_manager.wactions.push_front(selection_waction)
-				
-			selection_rect = null
-	else:
-		if editor_data.mouse_down:
-			if !selection_made.handle_selected:
-				if selection_made.is_cursor_inside(editor_data.world_pos):
-					selection_moving = true
-				elif !selection_made.calc_handle(editor_data.world_pos):
-					if !selection_moving:
-						clear_selection_status()
-			else:
-				selection_made.scale(editor_data.mouse_rel / cam.zoom, Input.is_key_pressed(KEY_SHIFT))
-			if selection_moving && selection_made:
-				selection_made.move(editor_data.mouse_rel / cam.zoom)
-		else:
-			selection_made.handle_selected = false
-			selection_moving = false
+			# RILASCIO DEL MOUSE: Calcoliamo cosa c'è dentro
+			if selection_rect and selection_rect.size.length() > 5: # Evitiamo micro-click
+				_perform_area_selection()
+			selection_rect = null # Reset dopo il calcolo
 			
+	# CASO B: La selezione esiste già (Siamo in modalità "Muovi/Scala")
+	else:
+		_handle_existing_selection()
+	
 	queue_redraw()
 
+# --- Funzioni di supporto per pulizia ---
 
+func _perform_area_selection():
+	var found_objs = []
+	var combined_rect : Rect2
+	var area = selection_rect.abs()
+
+	for child in canvas.get_children():
+		var obj_rect = get_object_rect(child)
+		# Usiamo intersects per rendere la selezione più naturale
+		if area.intersects(obj_rect):
+			found_objs.append(child)
+			combined_rect = combined_rect.merge(obj_rect) if found_objs.size() > 1 else obj_rect
+			
+	if found_objs.size() > 0:
+		selection_made = ShapeBounds.new(combined_rect)
+		selection_made.set_objs(found_objs)
+		
+		# Registriamo l'azione per l'undo solo se abbiamo trovato qualcosa
+		var sw = WAaction.new()
+		sw.set_action_reset_scale(found_objs)
+		waction_manager.wactions.push_front(sw)
+
+var snap_enabled : bool = true
+var drag_start_mouse_pos : Vector2 = Vector2.ZERO
+var drag_start_obj_pos : Vector2 = Vector2.ZERO
+func _handle_existing_selection():
+	if editor_data.mouse_down:
+		# --- FASE 1: Rilevamento Inizio Trascinamento ---
+		if !selection_moving and !selection_made.handle_selected:
+			if selection_made.calc_handle(editor_data.world_pos):
+				pass
+			elif selection_made.is_cursor_inside(editor_data.world_pos):
+				selection_moving = true
+				# Memorizziamo le posizioni iniziali "pure" (senza snap)
+				drag_start_mouse_pos = editor_data.world_pos
+				drag_start_obj_pos = selection_made.points[0]
+			else:
+				clear_selection_status()
+				return
+
+		# --- FASE 2: Esecuzione Scaling ---
+		if selection_made.handle_selected:
+			selection_made.scale(editor_data.mouse_rel / cam.zoom, Input.is_key_pressed(KEY_SHIFT))
+
+		# --- FASE 3: Esecuzione Movimento (STABILE) ---
+		elif selection_moving:
+			# Calcoliamo quanto si è spostato il mouse in totale dall'inizio del click
+			var total_mouse_delta = editor_data.world_pos - drag_start_mouse_pos
+			
+			# La posizione "teorica" dove dovrebbe trovarsi l'oggetto ora
+			var desired_pos = drag_start_obj_pos + total_mouse_delta
+			
+			if snap_enabled:
+				# Applichiamo lo snap alla posizione desiderata finale
+				var snapped_pos = background.get_grid_pos(desired_pos)
+				
+				# Il movimento RELATIVO necessario è: (Posizione Snappata Finale) - (Posizione Attuale dell'oggetto)
+				var current_obj_pos = selection_made.points[0]
+				var snap_rel = snapped_pos - current_obj_pos
+				
+				if snap_rel != Vector2.ZERO:
+					selection_made.move(snap_rel)
+			else:
+				# Movimento fluido basato sul delta del mouse (originale)
+				selection_made.move(editor_data.mouse_rel / cam.zoom)
+				
+	else:
+		# Reset totale al rilascio
+		selection_moving = false
+		selection_made.handle_selected = false
 var dt = 0
 
 
@@ -233,10 +282,12 @@ func _on_line_btn_pressed():
 
 
 func get_object_rect(obj) -> Rect2:
-	var r = obj._edit_get_rect()
-	r.position += obj.position
-	return r
-
+	if obj:
+		var r = obj._edit_get_rect()
+		r.position += obj.position
+		return r
+	return Rect2()
+	
 func get_objects_rect(objs : Array) -> Rect2:
 	var new_rect = null
 	for o in objs:
@@ -252,7 +303,7 @@ func handle_copy():
 		copied_items = selection_made.objs.duplicate()
 		DisplayServer.clipboard_set("")
 		copied_pos = selection_made.points[0]
-	#print(copied_items)
+	#print(copied_items)	
 
 func handle_paste(on_mouse = true):
 	var wac = WAaction.new()
@@ -282,6 +333,12 @@ func handle_paste(on_mouse = true):
 	waction_manager.add_waction(wac)
 
 func single_click_selection():
+	if selection_made:
+		if selection_made.calc_handle(editor_data.world_pos):
+			return
+		if !selection_made.is_cursor_inside(editor_data.world_pos) && !editor_data.ctrl_pressed:
+			clear_selection_status()
+	
 	for child in canvas.get_children():
 		var new_rect = get_object_rect(child)
 		if new_rect.has_point(editor_data.world_pos):

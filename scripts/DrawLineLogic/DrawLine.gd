@@ -3,7 +3,7 @@ class_name DrawLine
 var curr_line = null
 var line : Line2D
 
-var current_size = 1
+var current_size = 20
 var curr_points = PackedVector2Array()	
 var curr_pres = PackedFloat32Array()
 
@@ -21,8 +21,7 @@ func _init(base_line, main, canvas):
 	self.main = main
 	self.canvas = canvas
 	self.base_line = base_line
-	self.current_size = base_line.width
-
+	
 func create_line():
 	curr_line = base_line.duplicate()
 	curr_line.default_color = main.editor_data.current_col
@@ -75,7 +74,7 @@ func done():
 		
 
 	if smoothed_points.size() > 2:
-		curr_line.points = simplify_points(smoothed_points, 0.5)
+		curr_line.points = simplify_points(smoothed_points, 1)
 		
 	
 	#_optimize_pressure_curve(optimized_points)

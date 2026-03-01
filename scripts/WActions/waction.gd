@@ -5,7 +5,8 @@ enum ACTION_TYPE{
 	DELETE_OBJ,
 	RESET_SCALE,
 	SPACER,
-	PASTE
+	PASTE,
+	ADDTEXT
 }
 
 var type
@@ -26,6 +27,10 @@ func set_action_add_line(line : Line2D, parent):
 
 func set_action_delete_obj(obj, parent):
 	self.type = ACTION_TYPE.DELETE_OBJ
+	self.data = [obj, parent]
+
+func set_action_add_text(obj, parent):
+	self.type = ACTION_TYPE.ADDTEXT
 	self.data = [obj, parent]
 
 func set_action_reset_scale(objs):
@@ -73,6 +78,9 @@ func undo():
 	elif type == ACTION_TYPE.PASTE:
 		for c in data[0]:
 			data[1].remove_child(c)
+	elif type == ACTION_TYPE.ADDTEXT:
+		if data[0] && data[1]:
+			data[1].remove_child(data[0])
 
 func redo():
 	if type == ACTION_TYPE.ADDLINE:
@@ -100,6 +108,9 @@ func redo():
 	elif type == ACTION_TYPE.PASTE:
 		for c in data[0]:
 			data[1].add_child(c)
+	elif type == ACTION_TYPE.ADDTEXT:
+		if data[0] && data[1]:
+			data[1].add_child(data[0])
 			
 func clear_data():
 	if type == ACTION_TYPE.ADDLINE:

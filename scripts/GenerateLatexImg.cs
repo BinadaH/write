@@ -13,7 +13,7 @@ public partial class GenerateLatexImg : Node
         painter.FontSize = curr_font_size;
         painter.TextColor = SKColor.Parse("#FFFFFF");
 
-        using var png = painter.DrawAsStream(2000, CSharpMath.Rendering.FrontEnd.TextAlignment.Center, SKEncodedImageFormat.Png);
+        using var png = painter.DrawAsStream();
 
         byte[] buffer;
         using (var ms = new MemoryStream())

@@ -2,7 +2,8 @@ class_name ShapeBounds
 
 
 var points = []
-var handle_size_squared = 49
+const handle_r = 20
+const handle_size_squared = handle_r * handle_r
 var origin = Vector2()
 
 var objs
@@ -57,8 +58,9 @@ func draw(canvas : Node2D):
 	canvas.draw_line(points[1], points[2], Color.ALICE_BLUE, 3)
 	canvas.draw_line(points[2], points[3], Color.ALICE_BLUE, 3)
 	canvas.draw_line(points[3], points[0], Color.ALICE_BLUE, 3)
-	for p in points:
-		canvas.draw_circle(p, 6, Color.ALICE_BLUE)
+	for p in range(points.size()):
+		var col = Color.SKY_BLUE if (handle_selected && p == curr_handle) else Color.ALICE_BLUE
+		canvas.draw_circle(points[p], handle_r, col)
 		
 	#print(points)
 
@@ -85,14 +87,17 @@ func scale(rel : Vector2, proportional : bool):
 				if obj is Line2D:
 					for i in range(obj.points.size()):
 						obj.points[i] = k * (obj.points[i] - origin) + origin
+				elif obj && obj.is_in_group("text"):
+					obj.curr_font_size *= k.y if !proportional else k
+					obj.render(obj.text)
 				elif obj is Control:
 					obj.size *= k
 					#obj.size.x = max(obj.size.x, 10)
 					#obj.size.y = max(obj.size.y, 10)
 					
 					obj.position = k * (obj.position - origin) + origin
-	
 				
+					
 				
 
 func move(rel : Vector2):

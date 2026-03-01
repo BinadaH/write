@@ -40,6 +40,7 @@ func handle_mouse_motion(event):
 	if current_tool == TOOLS.PEN:
 		main.update_line()
 	elif current_tool == TOOLS.SELECT:
+		main.snap_enabled = event.ctrl_pressed
 		main.update_selection()
 	elif current_tool == TOOLS.LINE:
 		main.update_straight_line()
@@ -49,8 +50,10 @@ func handle_mouse_motion(event):
 func handle_mouse_button(event : InputEventMouseButton):
 	if event.button_index == MOUSE_BUTTON_LEFT:
 		mouse_down = event.pressed
+		
 		if event.pressed:
 			if current_tool == TOOLS.SELECT:
+				mouse_rel = Vector2(0, 0)
 				main.single_click_selection()
 				if event.double_click:
 					if main.selection_made && main.selection_made.objs[0].is_in_group("text"):
@@ -61,12 +64,17 @@ func handle_mouse_button(event : InputEventMouseButton):
 
 			if current_tool == TOOLS.TEXT:
 				var curr_focus = main.get_viewport().gui_get_focus_owner()
-				if curr_focus && !curr_focus.get_parent().is_in_group("text"):
+				if (curr_focus && !curr_focus.get_parent().is_in_group("text")) || !curr_focus:
 					var new_t_s = load("res://scenes/text.tscn")
 					var new_t = new_t_s.instantiate()
 					main.canvas.add_child(new_t)
 					new_t.position = world_pos
 					new_t.edit_text()
+					new_t.curr_font_size = main.draw_line_logic.current_size
+					
+					var wac = WAaction.new()
+					wac.set_action_add_text(new_t, main.canvas)
+					main.waction_manager.add_waction(wac)
 	
 	elif event.pressed && event.button_index == MOUSE_BUTTON_RIGHT:
 		if current_tool == TOOLS.SELECT:

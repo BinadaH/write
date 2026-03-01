@@ -29,7 +29,7 @@ const MIN_CAM_ZOOM = 0.15
 const MAX_CAM_ZOOM = 1
 func _ready() -> void:
 	cam = $camera
-	zoom = 0.05
+	zoom = 0.5
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 

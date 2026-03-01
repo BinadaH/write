@@ -7,12 +7,12 @@ var mouse_pos = Vector2()
 
 
 var color_palette = [
-	Color("#E0E1CF"), #light
+	Color("#c9c1b1"), #light
 	Color("#EB9486"), #orange
-	Color("#903A4B"), #red
+	Color("cc506bff"), #red
 	Color("#B8B8F3"), #purple
 	Color("#2274A5"), #
-	Color.BLACK,
+	Color("65b085ff"),
 ]
 
 func _ready():

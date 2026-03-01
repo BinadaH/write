@@ -63,6 +63,7 @@ func handle_mouse_button(event : InputEventMouseButton):
 				main.update_selection()
 
 			if current_tool == TOOLS.TEXT:
+				#create text
 				var curr_focus = main.get_viewport().gui_get_focus_owner()
 				if (curr_focus && !curr_focus.get_parent().is_in_group("text")) || !curr_focus:
 					var new_t_s = load("res://scenes/text.tscn")

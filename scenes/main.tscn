@@ -301,7 +301,7 @@ text = "col"
 layout_mode = 2
 min_value = 0.5
 max_value = 50.0
-step = 0.5
+step = 10.0
 value = 30.0
 
 [node name="Control" type="Control" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer" unique_id=1993991913]

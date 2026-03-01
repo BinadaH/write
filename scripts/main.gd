@@ -9,6 +9,7 @@ var waction_manager : WActionManager
 @onready var open_file = $CanvasGroup/open_file
 @onready var color_selector = $CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/Panel/pen_tools/color_selector
 func _ready() -> void:
+	Input.set_custom_mouse_cursor(load("res://sprites/custom_cursor.png"))
 	get_tree().root.content_scale_factor = 1.2
 	EditorFuncs.set_main(self)
 	

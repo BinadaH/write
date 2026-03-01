@@ -239,31 +239,43 @@ columns = 3
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+action_mode = 0
+keep_pressed_outside = true
 
 [node name="1" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/quick_cols" unique_id=203559407]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+action_mode = 0
+keep_pressed_outside = true
 
 [node name="2" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/quick_cols" unique_id=800579035]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+action_mode = 0
+keep_pressed_outside = true
 
 [node name="3" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/quick_cols" unique_id=1894406677]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+action_mode = 0
+keep_pressed_outside = true
 
 [node name="4" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/quick_cols" unique_id=821296540]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+action_mode = 0
+keep_pressed_outside = true
 
 [node name="5" type="Button" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer/quick_cols" unique_id=402496530]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+action_mode = 0
+keep_pressed_outside = true
 
 [node name="VSeparator3" type="VSeparator" parent="CanvasGroup/HBoxContainer/tools/Panel/VBoxContainer" unique_id=54273051]
 layout_mode = 2

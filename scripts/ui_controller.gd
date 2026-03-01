@@ -33,7 +33,7 @@ func _ready():
 		#ch.add_theme_stylebox_override("focus", s)
 		ch.add_theme_stylebox_override("disabled", s2)
 		i += 1
-		
+	
 		
 var last_quick_col = 0
 func change_col(index):

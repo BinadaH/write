@@ -15,7 +15,7 @@ var waction_manager : WActionManager
 func _ready() -> void:
 	Input.set_custom_mouse_cursor(load("res://sprites/custom_cursor.png"))
 	Input.use_accumulated_input = false
-	
+	Engine.max_fps = 75
 	get_tree().root.content_scale_factor = 1.2
 	EditorFuncs.set_main(self)
 	
@@ -34,7 +34,7 @@ func _ready() -> void:
 	var cl = Callable(editor_data, "set_text_size")
 	var text_cl = text_size_selector.get_children()
 	var sizes = [
-		background.SQUARE_SIZE * 2,
+		background.SQUARE_SIZE * 1.5,
 		background.SQUARE_SIZE,
 		background.SQUARE_SIZE * 0.5
 	]
@@ -42,6 +42,7 @@ func _ready() -> void:
 		text_cl[child_i].connect("pressed", cl.bind(sizes[child_i]))
 
 	editor_data.curr_text_size = sizes[1]
+	$CanvasGroup.change_col(0)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
